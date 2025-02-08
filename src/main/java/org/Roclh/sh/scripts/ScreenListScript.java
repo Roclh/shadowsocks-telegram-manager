@@ -17,8 +17,9 @@ public class ScreenListScript extends AbstractShScript<List<String>> {
     protected ScreenListScript() {
         super("screen_list.sh", """
                 #!/bin/bash
+                screen -wipe > /dev/null
                 screen -ls
-                                
+                
                 """);
     }
 

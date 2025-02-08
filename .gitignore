@@ -40,6 +40,6 @@ build/
 ### Custom ###
 /src/main/docker/*.jar
 *.sh
-/src/main/resources/secret.properties
-/src/test/resources/secret.properties
+/src/main/resources/application.secret.properties
+/src/test/resources/*secret*
 /external

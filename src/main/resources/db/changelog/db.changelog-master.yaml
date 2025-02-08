@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: ./db/changelog/initial_schema.yaml
+  - includeAll:
+      path: ./migration
+      relativeToChangelogFile: true
+      errorIfMissingOrEmpty: true

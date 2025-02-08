@@ -37,6 +37,7 @@ public class UserModel {
     private TelegramUserModel userModel;
     @Nullable
     private String password;
+    private Plugin plugin = Plugin.DEFAULT;
     @Nullable
     private Long usedPort;
     private boolean isAdded;
@@ -66,11 +67,15 @@ public class UserModel {
                 "\n<u>Used port</u>: " + usedPort +
                 "\n<u>Password</u>: <tg-spoiler>" + password + "</tg-spoiler>"+
                 "\n<u>Is added</u>: " + isAdded +
-                "\n";
+                "\n<u>Plugin</u>: " + plugin;
     }
 
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    enum Plugin {
+        DEFAULT, V2RAY;
     }
 }

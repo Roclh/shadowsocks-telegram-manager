@@ -1,0 +1,250 @@
+databaseChangeLog:
+- changeSet:
+    id: 1738605791899-1
+    author: Roclh
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: bandwidth_model_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: bandwidth
+            type: SMALLINT
+        - column:
+            name: user_model_id
+            type: BIGINT
+        tableName: bandwidth_model
+- changeSet:
+    id: 1738605791899-2
+    author: Roclh
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: telegram_user_model_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: chat_id
+            type: BIGINT
+        - column:
+            name: role
+            type: SMALLINT
+        - column:
+            name: telegram_id
+            type: BIGINT
+        - column:
+            name: telegram_name
+            type: VARCHAR(255)
+        tableName: telegram_user_model
+- changeSet:
+    id: 1738605791899-3
+    author: Roclh
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: user_model_pkey
+            name: id
+            type: BIGINT
+        - column:
+            constraints:
+              nullable: false
+            name: is_added
+            type: BOOLEAN
+        - column:
+            name: password
+            type: VARCHAR(255)
+        - column:
+            name: used_port
+            type: BIGINT
+        - column:
+            name: user_model_id
+            type: BIGINT
+        tableName: user_model
+- changeSet:
+    id: 1738605791899-4
+    author: Roclh
+    changes:
+    - addUniqueConstraint:
+        columnNames: user_model_id
+        constraintName: uksa82hb1gaeivcbhxi4auf4t8f
+        tableName: bandwidth_model
+- changeSet:
+    id: 1738605791899-5
+    author: Roclh
+    changes:
+    - addUniqueConstraint:
+        columnNames: telegram_id
+        constraintName: uk37hv7uo2w71uu3oid0hvdxxj6
+        tableName: telegram_user_model
+- changeSet:
+    id: 1738605791899-6
+    author: Roclh
+    changes:
+    - addUniqueConstraint:
+        columnNames: user_model_id
+        constraintName: uki6g0ohbk50937uv8bekwm701i
+        tableName: user_model
+- changeSet:
+    id: 1738605791899-7
+    author: Roclh
+    changes:
+    - createSequence:
+        cacheSize: 1
+        cycle: false
+        dataType: bigint
+        incrementBy: 50
+        maxValue: 9223372036854775807
+        minValue: 1
+        sequenceName: bandwidth_model_seq
+        startValue: 1
+- changeSet:
+    id: 1738605791899-8
+    author: Roclh
+    changes:
+    - createSequence:
+        cacheSize: 1
+        cycle: false
+        dataType: bigint
+        incrementBy: 50
+        maxValue: 9223372036854775807
+        minValue: 1
+        sequenceName: contract_model_seq
+        startValue: 1
+- changeSet:
+    id: 1738605791899-9
+    author: Roclh
+    changes:
+    - createSequence:
+        cacheSize: 1
+        cycle: false
+        dataType: bigint
+        incrementBy: 50
+        maxValue: 9223372036854775807
+        minValue: 1
+        sequenceName: manager_model_seq
+        startValue: 1
+- changeSet:
+    id: 1738605791899-10
+    author: Roclh
+    changes:
+    - createSequence:
+        cacheSize: 1
+        cycle: false
+        dataType: bigint
+        incrementBy: 50
+        maxValue: 9223372036854775807
+        minValue: 1
+        sequenceName: telegram_user_model_seq
+        startValue: 1
+- changeSet:
+    id: 1738605791899-11
+    author: Roclh
+    changes:
+    - createSequence:
+        cacheSize: 1
+        cycle: false
+        dataType: bigint
+        incrementBy: 50
+        maxValue: 9223372036854775807
+        minValue: 1
+        sequenceName: user_model_seq
+        startValue: 1
+- changeSet:
+    id: 1738605791899-12
+    author: Roclh
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: contract_model_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: end_date
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: start_date
+            type: TIMESTAMP WITHOUT TIME ZONE
+        - column:
+            name: user_model_id
+            type: BIGINT
+        tableName: contract_model
+- changeSet:
+    id: 1738605791899-13
+    author: Roclh
+    changes:
+    - createTable:
+        columns:
+        - column:
+            constraints:
+              nullable: false
+              primaryKey: true
+              primaryKeyName: localization_model_pkey
+            name: telegram_id
+            type: BIGINT
+        - column:
+            name: locale
+            type: VARCHAR(255)
+        tableName: localization_model
+- changeSet:
+    id: 1738605791899-14
+    author: Roclh
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_model_id
+        baseTableName: user_model
+        constraintName: fk2y2a8l9662sjjad4v9sawviwk
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: telegram_user_model
+        validate: true
+- changeSet:
+    id: 1738605791899-15
+    author: Roclh
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_model_id
+        baseTableName: bandwidth_model
+        constraintName: fki35mixip6ghmhlp0cnty3o7c7
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: user_model
+        validate: true
+- changeSet:
+    id: 1738605791899-16
+    author: Roclh
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_model_id
+        baseTableName: contract_model
+        constraintName: fknfh1ghw0lowp39eaari3h2bux
+        deferrable: false
+        initiallyDeferred: false
+        onDelete: NO ACTION
+        onUpdate: NO ACTION
+        referencedColumnNames: id
+        referencedTableName: user_model
+        validate: true
+

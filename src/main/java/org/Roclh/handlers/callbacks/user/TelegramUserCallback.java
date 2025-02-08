@@ -170,7 +170,7 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
                         .filter(filter)
                         .collect(Collectors.toMap(user -> user.getTelegramName() + ":" + user.getTelegramId(),
                                 user -> user.getTelegramId().toString())),
-                (data) -> InlineUtils.replace(callbackData, data),
+                (data) -> InlineUtils.replacePage(callbackData, data),
                 callbackData,
                 () ->{
                     String callback = callbackData.getCallbackData().substring(0, callbackData.getCallbackData().lastIndexOf(" "));

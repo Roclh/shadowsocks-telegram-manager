@@ -12,6 +12,8 @@ import org.Roclh.ss.ShadowsocksProperties;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -76,6 +78,15 @@ public class UserService {
 
     public List<UserModel> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public List<UserModel> getUsers(int pageSize, int pageNumber){
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return userRepository.findAll(pageable).toList();
+    }
+
+    public long size(){
+        return userRepository.count();
     }
 
     public boolean isAddedUser(TelegramUserModel telegramUser){

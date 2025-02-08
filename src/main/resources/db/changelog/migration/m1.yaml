@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Roclh
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            - columnExists:
+                tableName: user_model
+                columnName: plugin
+                schemaName: public
+      changes:
+        - addColumn:
+            tableName: user_model
+            columns:
+              - column:
+                  name: plugin
+                  type: INT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+        - sql:
+            sql: UPDATE user_model SET plugin = 0 WHERE plugin IS NULL;

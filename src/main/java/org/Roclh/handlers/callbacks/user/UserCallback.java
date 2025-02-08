@@ -44,6 +44,9 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
     @Override
     public PartialBotApiMethod<? extends Serializable> apply(CallbackData callbackData) {
         int commandLength = callbackData.getCallbackData().split(" ").length;
+        if (InlineUtils.paginationMatches(callbackData.getCallbackData())) {
+            commandLength -= 1;
+        }
         return switch (commandLength) {
             case 1 -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text("Select command")
@@ -88,13 +91,22 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
                     .text(i18N.get("callback.user.user.select.user.disable"))
                     .replyMarkup(getSelectUserIdMarkup(callbackData, UserModel::isAdded))
                     .build();
-            case "list" -> MessageUtils.editMessage(callbackData.getMessageData())
-                    .text(getSendMessageCommandResult(callbackData))
-                    .replyMarkup(InlineUtils.combineKeyboardMarkups(
-                            InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.user.user.inline.button.manage.users"), getName()),
-                            InlineUtils.getNavigationToStart(callbackData.getMessageData())
-                    ))
-                    .build();
+            case "list" -> {
+                long userSize = userService.size();
+                final int defaultPageSize = 2;
+                if (!InlineUtils.paginationMatches(callbackData.getCallbackData())) {
+                    callbackData.setCallbackData(callbackData.getCallbackData() + " {0}");
+                }
+                yield MessageUtils.editMessage(callbackData.getMessageData())
+                        .text(getSendMessageCommandResult(callbackData))
+                        .replyMarkup(InlineUtils.combineKeyboardMarkups(
+                                InlineUtils.getListNavigationMarkup(callbackData,
+                                        userSize / defaultPageSize + (userSize % defaultPageSize > 0 ? 1 : 0)
+                                ),
+                                InlineUtils.getNavigationToStart(callbackData.getMessageData())
+                        ))
+                        .build();
+            }
             case "addnopwd", "add", "contract" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.user.user.select.user.add"))
                     .replyMarkup(getSelectTelegramUserIdMarkup(callbackData, user -> !userService.isAddedUser(user)))

@@ -32,6 +32,19 @@ public class InlineUtils {
         return getListNavigationMarkup(selectables, callbackDataConsumer, locale, () -> null);
     }
 
+    public static InlineKeyboardMarkup getListNavigationMarkup(CallbackData callbackData,
+                                                               long pageCount) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> inlineKeyboardButtons = new ArrayList<>();
+
+        List<InlineKeyboardButton> navigationRows = getPaginationButtonsRow(callbackData, pageCount);
+        if (navigationRows != null) {
+            inlineKeyboardButtons.add(navigationRows);
+        }
+        inlineKeyboardMarkup.setKeyboard(inlineKeyboardButtons);
+        return inlineKeyboardMarkup;
+    }
+
     public static InlineKeyboardMarkup getListNavigationMarkupWithPagination(Map<String, String> selectables,
                                                                              Function<String, String> callbackDataConsumer,
                                                                              CallbackData callbackData,
@@ -72,13 +85,14 @@ public class InlineUtils {
         return inlineKeyboardMarkup;
     }
 
-    public static InlineKeyboardMarkup combineKeyboardMarkups(InlineKeyboardMarkup... keyboardMarkups){
+    public static InlineKeyboardMarkup combineKeyboardMarkups(InlineKeyboardMarkup... keyboardMarkups) {
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        for (InlineKeyboardMarkup markup : keyboardMarkups){
-            rows.addAll(markup.getKeyboard());
+        for (InlineKeyboardMarkup markup : keyboardMarkups) {
+            rows.addAll(markup.getKeyboard().stream().filter(buttons -> !buttons.isEmpty()).toList());
         }
         return InlineKeyboardMarkup.builder().keyboard(rows).build();
     }
+
     @NonNull
     public static InlineKeyboardMarkup getListNavigationMarkup(Map<String, String> selectables,
                                                                Function<String, String> callbackDataConsumer,
@@ -145,7 +159,7 @@ public class InlineUtils {
         return getDefaultNavigationMarkup(EmojiConstants.HOUSE + i18N.get("callback.default.navigation.data.back"), "start");
     }
 
-    public static InlineKeyboardMarkup getNavigationToPreviousCommand(@NonNull CallbackData callbackData){
+    public static InlineKeyboardMarkup getNavigationToPreviousCommand(@NonNull CallbackData callbackData) {
         I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
         return getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"),
                 callbackData.getCallbackData().substring(0, callbackData.getCallbackData().lastIndexOf(" ")));
@@ -171,7 +185,7 @@ public class InlineUtils {
         return List.of(inlineKeyboardButton);
     }
 
-    private static List<InlineKeyboardButton> getPaginationButtonsRow(CallbackData callbackData, int pageCount) {
+    private static List<InlineKeyboardButton> getPaginationButtonsRow(CallbackData callbackData, long pageCount) {
         if (pageCount == 0) {
             return null;
         }
@@ -182,29 +196,29 @@ public class InlineUtils {
         if (pageNumber > 0) {
             buttons.add(InlineKeyboardButton.builder()
                     .text("<-")
-                    .callbackData(replace(callbackData, "{" + (pageNumber - 1) + "}"))
+                    .callbackData(replacePage(callbackData, "{" + (pageNumber - 1) + "}"))
                     .build());
         }
         if (pageNumber < pageCount - 1) {
             buttons.add(InlineKeyboardButton.builder()
                     .text("->")
-                    .callbackData(replace(callbackData, "{" + (pageNumber + 1) + "}"))
+                    .callbackData(replacePage(callbackData, "{" + (pageNumber + 1) + "}"))
                     .build());
         }
         return buttons;
     }
 
-    public static String replace(CallbackData callbackData, String arg) {
+    public static String replacePage(CallbackData callbackData, String arg) {
         return paginationPattern.matcher(callbackData.getCallbackData()).replaceAll(arg);
     }
 
     public static boolean paginationMatches(String command) {
         boolean hasPagination = paginationPattern.matcher(command).find();
-        log.info("Command {} has pagination? {}", command, hasPagination);
+        log.debug("Command {} has pagination? {}", command, hasPagination);
         return hasPagination;
     }
 
-    private static int getPageNumber(String data) {
+    public static int getPageNumber(String data) {
         try {
             Matcher matcher = paginationPattern.matcher(data);
             if (matcher.find()) {

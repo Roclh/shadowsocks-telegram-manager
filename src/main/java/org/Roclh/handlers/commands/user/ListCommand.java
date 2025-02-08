@@ -1,5 +1,6 @@
 package org.Roclh.handlers.commands.user;
 
+import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.BandwidthService;
 import org.Roclh.data.services.ContractService;
@@ -7,6 +8,7 @@ import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -14,6 +16,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class ListCommand extends AbstractCommand<SendMessage> {
     private final UserService userService;
@@ -29,10 +32,25 @@ public class ListCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public SendMessage handle(CommandData commandData) {
-        List<UserModel> allUsers = userService.getAllUsers();
+        String[] words = commandData.getCommand().split(" ");
+        if (words.length < 2) {
+            return MessageUtils.sendMessage(commandData.getMessageData())
+                    .text(i18N.get("common.validation.not.enough.argument", 2))
+                    .replyMarkup(InlineUtils.getNavigationToStart(commandData.getMessageData()))
+                    .build();
+        }
+        int pageNumber = 0;
+        try {
+            pageNumber = InlineUtils.getPageNumber(words[1]);
+        } catch (NumberFormatException e) {
+            log.error(i18N.get("command.user.list.validation.page.parse", words[1]));
+        }
+        final int defaultPageSize = 2;
+        List<UserModel> users = userService.getUsers(defaultPageSize, pageNumber);
+        long allUsersSize = userService.size();
         return MessageUtils.sendMessage(commandData.getMessageData())
-                .text(allUsers.size() + " added users:\n" +
-                        allUsers.stream().map(UserModel::toFormattedString)
+                .text("Shadowsocks users from " + (pageNumber * defaultPageSize) + " to " + (Math.min((long) (pageNumber + 1) * defaultPageSize, allUsersSize)) + " users:\n" +
+                        users.stream().map(UserModel::toFormattedString)
                                 .map(s -> bandwidthService.getRule(commandData.getMessageData().getTelegramId())
                                         .map(b -> s + b.toFormattedString()).orElse(s))
                                 .map(s -> contractService.getContract(commandData.getMessageData().getTelegramId())

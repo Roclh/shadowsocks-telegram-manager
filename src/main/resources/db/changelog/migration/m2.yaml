@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: Roclh
+      changes:
+        - sql:
+            sql: UPDATE user_model SET plugin = 0 WHERE plugin IS NULL
