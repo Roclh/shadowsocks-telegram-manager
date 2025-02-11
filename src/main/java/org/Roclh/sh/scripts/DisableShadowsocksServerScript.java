@@ -17,7 +17,7 @@ public class DisableShadowsocksServerScript extends AbstractShScript<Boolean> {
                                   grep -v ${1} ${DIR}/justusers.txt > ${DIR}/tmpfile2; mv ${DIR}/tmpfile2 ${DIR}/justusers.txt
                                   screen -S ${1} -X quit
                                   rm ${DIR}/${1}.json
-                                  echo succesfully removed ${1}
+                                  echo successfully removed ${1}
                           else
                                   echo no user ${1} check screen -ls and netstat -ltp
                           fi

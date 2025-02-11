@@ -7,6 +7,7 @@ import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.repositories.ContractRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ public class ContractService {
                         if(contractModel.getEndDate() != null){
                             contract.setEndDate(contractModel.getEndDate());
                         }
+                        contract.setWasNotified(contractModel.isWasNotified());
                         return contract;
                     }).orElse(contractModel));
             return true;
@@ -36,6 +38,14 @@ public class ContractService {
             log.error("Failed to save a contract {}", contractModel, e);
         }
         return false;
+    }
+
+    public List<ContractModel> getAllExpiredContracts(LocalDateTime dateTime){
+        return repository.findByWasNotifiedFalseAndUserModel_IsAddedTrueAndEndDateLessThan(dateTime);
+    }
+
+    public int resetNotify(){
+        return repository.updateWasNotifiedByWasNotifiedTrue();
     }
 
     public List<ContractModel> getAllContracts(){

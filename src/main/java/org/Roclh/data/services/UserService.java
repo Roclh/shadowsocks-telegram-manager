@@ -46,6 +46,7 @@ public class UserService {
                         user.setPassword(userModel.getPassword());
                         user.setAdded(userModel.isAdded());
                         user.setUsedPort(userModel.getUsedPort());
+                        user.setPlugin(userModel.getPlugin());
                         return user;
                     }
             ).orElse(userModel));

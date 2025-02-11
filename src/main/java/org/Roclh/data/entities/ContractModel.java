@@ -36,6 +36,8 @@ public class ContractModel {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
+    private boolean wasNotified = false;
+
     public String toFormattedString(){
         return  "\n<u>Start date</u>: " + startDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) +
                 "\n<u>End date</u>: " + endDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
