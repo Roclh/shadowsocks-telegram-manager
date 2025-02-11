@@ -2,23 +2,24 @@ package org.Roclh.mock;
 
 import org.Roclh.sh.scripts.CreateBandwidthRulesetScript;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig
+import static org.mockito.Mockito.mock;
+
+@TestConfiguration
 public class ShScriptsMocks {
 
-    @MockBean
-    private CreateBandwidthRulesetScript bandwidthRulesetScript;
-
-    @Primary
     @Bean
+    @Primary
     public CreateBandwidthRulesetScript createBandwidthRulesetScript() {
-        Mockito.doNothing().when(bandwidthRulesetScript).init();
-        Mockito.when(bandwidthRulesetScript.execute(Mockito.any())).then((ans) -> false);
-        return bandwidthRulesetScript;
+        CreateBandwidthRulesetScript createBandwidthRulesetScript = mock(CreateBandwidthRulesetScript.class);
+        Mockito.doNothing().when(createBandwidthRulesetScript).init();
+        Mockito.when(createBandwidthRulesetScript.execute(Mockito.any())).then((ans) -> false);
+        return createBandwidthRulesetScript;
     }
+
+
 
 }
