@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaDocument;
@@ -237,17 +236,19 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
     private File contractModelToCsv(List<ContractModel> models) {
         File contractFile = new File("contract.csv");
         StringBuilder csvStringBuilder = new StringBuilder();
-        csvStringBuilder.append("id,userModelId,startDate,endDate\n");
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+        csvStringBuilder.append("id,userModelId,startDate,endDate,wasNotified\n");
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
         for (ContractModel model : models) {
             Long id = model.getId();
             Long userModelId = model.getUserModel().getId();
             String startDate = model.getStartDate().format(formatter);
             String endDate = model.getEndDate().format(formatter);
+            boolean wasNotified = model.isWasNotified();
             csvStringBuilder.append(id).append(',')
                     .append(userModelId).append(',')
                     .append(startDate).append(',')
-                    .append(endDate).append('\n');
+                    .append(endDate).append(',')
+                    .append(wasNotified).append('\n');
         }
         String csvString = csvStringBuilder.toString();
         try (FileWriter writer = new FileWriter(contractFile)) {

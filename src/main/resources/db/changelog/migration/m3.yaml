@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: razhinka
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            - columnExists:
+                tableName: contract_model
+                columnName: was_notified
+                schemaName: public
+      changes:
+        - addColumn:
+            tableName: contract_model
+            columns:
+              - column:
+                  name: was_notified
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+        - sql:
+            sql: UPDATE contract_model SET was_notified = false WHERE was_notified IS NULL;

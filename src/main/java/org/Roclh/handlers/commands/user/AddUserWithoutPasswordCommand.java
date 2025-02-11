@@ -69,6 +69,7 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
                 .password(password)
                 .usedPort(port)
                 .isAdded(true)
+                .plugin(UserModel.Plugin.DEFAULT)
                 .build();
 
         if (!enableScript.execute(userModel)) {

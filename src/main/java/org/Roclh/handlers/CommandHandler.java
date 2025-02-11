@@ -9,6 +9,8 @@ import org.Roclh.handlers.commands.common.HelpCommand;
 import org.Roclh.handlers.commands.common.RegisterCommand;
 import org.Roclh.handlers.commands.common.SelectLangCommand;
 import org.Roclh.handlers.commands.common.StartCommand;
+import org.Roclh.handlers.commands.manager.RestartAllUsersCommand;
+import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.commands.manager.ExportCsvCommand;
 import org.Roclh.handlers.commands.manager.SendNotificationCommand;
 import org.Roclh.handlers.commands.sh.ScreenListCommand;
@@ -23,7 +25,6 @@ import org.Roclh.handlers.commands.user.ChangeUserPasswordCommand;
 import org.Roclh.handlers.commands.user.DeleteUserCommand;
 import org.Roclh.handlers.commands.user.LimitFlowCommand;
 import org.Roclh.handlers.commands.user.ListCommand;
-import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -69,7 +70,8 @@ public class CommandHandler {
                           GetLinkCommand getLinkCommand,
                           ExportCsvCommand exportCsvCommand,
                           SendNotificationCommand sendNotificationCommand,
-                          GuideCommand guideCommand) {
+                          GuideCommand guideCommand,
+                          RestartAllUsersCommand restartAllUsersCommand) {
         this.localizationService = localizationService;
         commands.put(startCommand.getCommandNames(), startCommand);
         commands.put(helpCommand.getCommandNames(), helpCommand);
@@ -91,6 +93,7 @@ public class CommandHandler {
         commands.put(selectLangCommand.getCommandNames(), selectLangCommand);
         commands.put(sendNotificationCommand.getCommandNames(), sendNotificationCommand);
         commands.put(guideCommand.getCommandNames(), guideCommand);
+        commands.put(restartAllUsersCommand.getCommandNames(), restartAllUsersCommand);
     }
 
     public PartialBotApiMethod<? extends Serializable> handleCommands(Update update) {

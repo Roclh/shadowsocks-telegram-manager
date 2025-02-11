@@ -111,7 +111,7 @@ public class ManagerCallback extends AbstractCallback<PartialBotApiMethod<? exte
         String command = callbackData.getCallbackData().split(" ")[1];
         return switch (command) {
             case "csv" -> MessageUtils.editMessage(callbackData.getMessageData())
-                    .text(i18N.get("callback.manager.select.data.type"))
+                    .text(i18N.get("callback.manager.exportcsv.select.data.type"))
                     .replyMarkup(getSelectCsvDatabaseTypeMarkup(callbackData))
                     .build();
             case "notify" -> MessageUtils.editMessage(callbackData.getMessageData())

@@ -18,6 +18,7 @@ import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.lang.Nullable;
 
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 @Getter
@@ -37,6 +38,7 @@ public class UserModel {
     private TelegramUserModel userModel;
     @Nullable
     private String password;
+    @NotNull
     private Plugin plugin = Plugin.DEFAULT;
     @Nullable
     private Long usedPort;
@@ -75,7 +77,7 @@ public class UserModel {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    enum Plugin {
+    public enum Plugin {
         DEFAULT, V2RAY
     }
 }

@@ -72,6 +72,7 @@ public class AddUserCommand extends AbstractCommand<SendMessage> {
                 .usedPort(port)
                 .password(password)
                 .isAdded(true)
+                .plugin(UserModel.Plugin.DEFAULT)
                 .build();
         if (!enableScript.execute(userModel)) {
             log.error("Failed to add user - failed to execute sh script for user with id {}", telegramId);

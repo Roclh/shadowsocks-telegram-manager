@@ -103,10 +103,8 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
                                 InlineUtils.getListNavigationMarkup(callbackData,
                                         userSize / defaultPageSize + (userSize % defaultPageSize > 0 ? 1 : 0)
                                 ),
-                                InlineUtils.getNavigationToStart(callbackData.getMessageData())
-                        ))
-                        .build();
-            }
+                                InlineUtils.getNavigationToStart(callbackData.getMessageData())))
+                        .build();}
             case "addnopwd", "add", "contract" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.user.user.select.user.add"))
                     .replyMarkup(getSelectTelegramUserIdMarkup(callbackData, user -> !userService.isAddedUser(user)))
@@ -132,6 +130,10 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
             case "enable", "disable", "delete" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(getSendMessageCommandResult(callbackData))
                     .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                    .build();
+            case "lflow" -> MessageUtils.editMessage(callbackData.getMessageData())
+                    .text(getSendMessageCommandResult(callbackData))
+                    .replyMarkup(getSelectBandwidthMarkup(callbackData))
                     .build();
             default -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.default.navigation.data.error.parse.two.argument"))
