@@ -5,9 +5,8 @@ import org.Roclh.sh.ShScript;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.Paths;
 
 @Slf4j
 public abstract class AbstractShScript<T> implements ShScript<T> {
@@ -28,7 +27,10 @@ public abstract class AbstractShScript<T> implements ShScript<T> {
         try (FileWriter fileWriter = new FileWriter(fileName)) {
             fileWriter.write(content);
             log.info("Changing file permissons for {}", fileName);
-            Files.setPosixFilePermissions(Path.of(fileName), PosixFilePermissions.fromString("rwxrwxrwx"));
+            Path filePath = Paths.get(fileName);
+            filePath.toFile().setExecutable(true);
+            filePath.toFile().setReadable(true);
+            filePath.toFile().setWritable(true);
             wasInitialized = true;
         } catch (IOException e) {
             throw new RuntimeException(e);

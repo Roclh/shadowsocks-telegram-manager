@@ -78,6 +78,6 @@ public class UserModel {
     }
 
     public enum Plugin {
-        DEFAULT, V2RAY;
+        DEFAULT, V2RAY
     }
 }
