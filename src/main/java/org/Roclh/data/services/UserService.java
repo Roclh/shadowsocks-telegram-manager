@@ -31,9 +31,7 @@ public class UserService {
     @EventListener(ContextRefreshedEvent.class)
     @Order(10)
     public void init() {
-        getAllUsers().stream()
-                .filter(userModel -> userModel.isAdded() && userModel.getUsedPort() != null && userModel.getPassword() != null)
-                .forEach(enableScript::execute);
+        getActiveUsers().forEach(enableScript::execute);
     }
 
     public boolean saveUser(@NonNull UserModel userModel) {
@@ -83,6 +81,10 @@ public class UserService {
     public List<UserModel> getUsers(int pageSize, int pageNumber){
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         return userRepository.findAll(pageable).toList();
+    }
+
+    public List<UserModel> getActiveUsers(){
+        return userRepository.findByIsAddedTrueAndUsedPortNotNullAndPasswordNotNull();
     }
 
     public long size(){

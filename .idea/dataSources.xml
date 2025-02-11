@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="postgres@localhost" uuid="32fb98b3-e092-4b21-868f-1f3fba9d99a6">
+    <data-source source="LOCAL" name="pepegavpnmanager@localhost" uuid="32fb98b3-e092-4b21-868f-1f3fba9d99a6">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5433/pepegavpnmanager</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
@@ -13,11 +13,11 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="pepegavpnmanager@localhost" uuid="28c7d917-6c37-4c45-80e8-521f0e9c5ab4">
+    <data-source source="LOCAL" name="pepegavpnmanager@46.32.187.240" uuid="28c7d917-6c37-4c45-80e8-521f0e9c5ab4">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/pepegavpnmanager</jdbc-url>
+      <jdbc-url>jdbc:postgresql://46.32.187.240:15432/pepegavpnmanager</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />

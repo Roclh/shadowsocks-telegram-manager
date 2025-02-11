@@ -13,9 +13,9 @@ public class CreateBandwidthRulesetScript extends AbstractShScript<Boolean> {
     protected CreateBandwidthRulesetScript() {
         super("create_ruleset.sh", """
                 #!/bin/bash
-                                    
+                
                 tc qdisc add dev eth0 root handle 1: prio
-                                    
+                
                 """);
     }
 
