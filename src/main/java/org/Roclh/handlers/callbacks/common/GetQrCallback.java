@@ -23,6 +23,7 @@ import java.util.List;
 
 @Slf4j
 @Component
+@Deprecated
 @RequiredArgsConstructor
 public class GetQrCallback extends AbstractCallback<PartialBotApiMethod<? extends Serializable>> {
     private final TelegramUserService telegramUserService;
@@ -61,6 +62,6 @@ public class GetQrCallback extends AbstractCallback<PartialBotApiMethod<? extend
 
     @Override
     public boolean isAllowed(Long telegramId) {
-        return telegramUserService.isAllowed(telegramId, Role.USER) && userService.getUser(telegramId).map(UserModel::isAdded).orElse(false);
+        return telegramUserService.isAllowed(telegramId, Role.USER) && userService.getUser(telegramId).map(UserModel::isEnabled).orElse(false);
     }
 }

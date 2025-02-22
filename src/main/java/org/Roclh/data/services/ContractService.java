@@ -41,7 +41,7 @@ public class ContractService {
     }
 
     public List<ContractModel> getAllExpiredContracts(LocalDateTime dateTime){
-        return repository.findByWasNotifiedFalseAndUserModel_IsAddedTrueAndEndDateLessThan(dateTime);
+        return repository.findByWasNotifiedFalseAndUserModel_IsEnabledTrueAndEndDateLessThan(dateTime);
     }
 
     public int resetNotify(){

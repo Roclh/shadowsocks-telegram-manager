@@ -4,20 +4,26 @@ import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.WithCallbackStack;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.sh.scripts.DisableShadowsocksServerScript;
 import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
+import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.callback.CallbackStack;
+import org.Roclh.utils.callback.CallbackStackUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
-public class ChangeUserEnabledCommand extends AbstractCommand<SendMessage> {
+public class ChangeUserEnabledCommand extends AbstractCommand<SendMessage> implements WithCallbackStack {
     private final List<String> enableCommands = List.of("enable");
     private final List<String> disableCommands = List.of("disable", "dis");
 
@@ -25,8 +31,8 @@ public class ChangeUserEnabledCommand extends AbstractCommand<SendMessage> {
     private final EnableDefaultShadowsocksServerScript enableScript;
     private final DisableShadowsocksServerScript disableScript;
 
-    public ChangeUserEnabledCommand(TelegramUserService telegramUserService, UserService userService, EnableDefaultShadowsocksServerScript enableScript, DisableShadowsocksServerScript disableScript) {
-        super(telegramUserService);
+    public ChangeUserEnabledCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, UserService userService, EnableDefaultShadowsocksServerScript enableScript, DisableShadowsocksServerScript disableScript) {
+        super(telegramUserService, commandRegistry);
         this.userService = userService;
         this.enableScript = enableScript;
         this.disableScript = disableScript;
@@ -55,6 +61,8 @@ public class ChangeUserEnabledCommand extends AbstractCommand<SendMessage> {
         boolean isEnabled = enableCommands.contains(cmd);
         if (changeEnabled(userModel, isEnabled)) {
             sendMessage.setText("User was " + (isEnabled ? "enabled" : "disabled"));
+            userModel.setEnabled(isEnabled);
+            userService.saveUser(userModel);
         } else {
             sendMessage.setText("User was not " + (isEnabled ? "enabled" : "disabled"));
         }
@@ -77,5 +85,59 @@ public class ChangeUserEnabledCommand extends AbstractCommand<SendMessage> {
         } else {
             return disableScript.execute(userModel);
         }
+    }
+
+    @Override
+    public CallbackStack getCallbackStack() {
+        CallbackStack enableCallbackStack = null;
+        if (userService.getAllUsers().stream().anyMatch(user -> !user.isEnabled())) {
+            enableCallbackStack =
+                    CallbackStack.of("user")
+                            .forCommand("enable",
+                                    i18N.get("callback.user.user.inline.button.enable.user")
+                            )
+                            .with(1, (callbackData) ->
+                                    CallbackStackUtils.getDefaultSelectUserIdMessage(
+                                            callbackData,
+                                            i18N.get("callback.user.user.select.user.enable"),
+                                            userService,
+                                            user -> !user.isEnabled()
+                                    )
+                            )
+                            .with(2, (callbackData) -> MessageUtils.editMessage(callbackData.getMessageData())
+                                    .text(handle(CommandData.from(callbackData)).getText())
+                                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                                    .build())
+                            .build();
+        }
+        CallbackStack disableCallbackStack = null;
+        if (userService.getAllUsers().stream().anyMatch(UserModel::isEnabled)) {
+            disableCallbackStack =
+                    CallbackStack.of("user")
+                            .forCommand("disable", i18N.get("callback.user.user.inline.button.disable.user"))
+                            .with(1, (callbackData) ->
+                                    CallbackStackUtils.getDefaultSelectUserIdMessage(
+                                            callbackData,
+                                            i18N.get("callback.user.user.select.user.disable"),
+                                            userService,
+                                            UserModel::isEnabled
+                                    )
+                            )
+                            .with(2, (callbackData) -> MessageUtils.editMessage(callbackData.getMessageData())
+                                    .text(handle(CommandData.from(callbackData)).getText())
+                                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                                    .build())
+                            .build();
+        }
+        if (enableCallbackStack == null && disableCallbackStack == null) {
+            return null;
+        }
+        if (enableCallbackStack == null) {
+            return disableCallbackStack;
+        }
+        if (disableCallbackStack == null) {
+            return enableCallbackStack;
+        }
+        return enableCallbackStack.merge(disableCallbackStack);
     }
 }

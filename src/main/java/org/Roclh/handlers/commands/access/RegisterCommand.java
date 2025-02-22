@@ -1,4 +1,4 @@
-package org.Roclh.handlers.commands.common;
+package org.Roclh.handlers.commands.access;
 
 import org.Roclh.bot.TelegramBotStorage;
 import org.Roclh.data.Role;
@@ -6,6 +6,7 @@ import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
@@ -17,8 +18,8 @@ import java.util.List;
 public class RegisterCommand extends AbstractCommand<SendMessage> {
     public final TelegramBotStorage botStorage;
 
-    public RegisterCommand(TelegramUserService telegramUserService, TelegramBotStorage botStorage) {
-        super(telegramUserService);
+    public RegisterCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, TelegramBotStorage botStorage) {
+        super(telegramUserService, commandRegistry);
         this.botStorage = botStorage;
     }
 

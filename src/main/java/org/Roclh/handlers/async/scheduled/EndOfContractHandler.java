@@ -22,7 +22,7 @@ public class EndOfContractHandler {
     @Scheduled(cron = "0 */1 * * * *")
     public void disableExpiredContract() {
         contractService.getAllExpiredContracts(LocalDateTime.now()).forEach(contractModel -> {
-            contractModel.getUserModel().setAdded(false);
+            contractModel.getUserModel().setEnabled(false);
             if (userService.saveUser(contractModel.getUserModel())) {
                 disableScript.execute(contractModel.getUserModel());
                 log.info("{} was disabled", contractModel.getUserModel().getUserModel().getTelegramName());

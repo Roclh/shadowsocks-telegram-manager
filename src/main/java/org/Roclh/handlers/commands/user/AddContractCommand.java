@@ -6,10 +6,13 @@ import org.Roclh.data.services.ContractService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.WithCallbackStack;
+import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
 import org.Roclh.utils.DateTimeUtils;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.callback.CallbackStack;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -18,15 +21,16 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class AddContractCommand extends AbstractCommand<SendMessage> {
+public class AddContractCommand extends AbstractCommand<SendMessage> implements WithCallbackStack {
     private final ContractService contractService;
     private final UserService userService;
     private final EnableDefaultShadowsocksServerScript enableDefaultShadowsocksServerScript;
 
     public AddContractCommand(TelegramUserService telegramUserService,
+                              CommandRegistry commandRegistry,
                               ContractService contractService, UserService userService,
                               EnableDefaultShadowsocksServerScript enableDefaultShadowsocksServerScript) {
-        super(telegramUserService);
+        super(telegramUserService, commandRegistry);
         this.contractService = contractService;
         this.userService = userService;
         this.enableDefaultShadowsocksServerScript = enableDefaultShadowsocksServerScript;
@@ -60,8 +64,8 @@ public class AddContractCommand extends AbstractCommand<SendMessage> {
                     .text(i18N.get("command.user.add.contract.validation.failed.to.save.contract", telegramId)).build();
         }
         if (!userService.getUser(telegramId).map(user -> {
-            if (!user.isAdded()) {
-                user.setAdded(true);
+            if (!user.isEnabled()) {
+                user.setEnabled(true);
                 userService.saveUser(user);
                 return enableDefaultShadowsocksServerScript.execute(user);
             }
@@ -78,5 +82,16 @@ public class AddContractCommand extends AbstractCommand<SendMessage> {
     @Override
     public List<String> getCommandNames() {
         return List.of("contract", "setContract", "contractset");
+    }
+
+
+    @Override
+    public CallbackStack getCallbackStack() {
+        return CallbackStack.of("user")
+                .forCommand("contract", "Add contract")
+                .with(1, (callbackData ) -> {
+                    throw new RuntimeException("Not implemented");
+                })
+                .build();
     }
 }

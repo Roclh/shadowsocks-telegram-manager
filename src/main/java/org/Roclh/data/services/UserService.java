@@ -42,7 +42,7 @@ public class UserService {
                         user.getUserModel().setTelegramName(userModel.getUserModel().getTelegramName());
                         user.getUserModel().setChatId(userModel.getUserModel().getChatId());
                         user.setPassword(userModel.getPassword());
-                        user.setAdded(userModel.isAdded());
+                        user.setEnabled(userModel.isEnabled());
                         user.setUsedPort(userModel.getUsedPort());
                         user.setPlugin(userModel.getPlugin());
                         return user;
@@ -85,7 +85,7 @@ public class UserService {
     }
 
     public List<UserModel> getActiveUsers(){
-        return userRepository.findByIsAddedTrueAndUsedPortNotNullAndPasswordNotNull();
+        return userRepository.findByIsEnabledTrueAndUsedPortNotNullAndPasswordNotNull();
     }
 
     public long size(){
@@ -108,4 +108,10 @@ public class UserService {
         return shadowsocksProperties.getPortRange().range().stream().filter(this::isPortNotUsed).toList().subList(0, amount);
     }
 
+    /**
+     * IMPORTANT NOT USE, ONLY FOR TESTS
+     */
+    public void clear(){
+        userRepository.deleteAll();
+    }
 }

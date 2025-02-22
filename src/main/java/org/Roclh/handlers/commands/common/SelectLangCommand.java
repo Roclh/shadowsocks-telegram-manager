@@ -6,23 +6,29 @@ import org.Roclh.data.Role;
 import org.Roclh.data.services.LocalizationService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.WithCallbackStack;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.callback.CallbackStack;
+import org.Roclh.utils.callback.CallbackStackUtils;
+import org.Roclh.utils.i18n.EmojiConstants;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class SelectLangCommand extends AbstractCommand<SendMessage> {
+public class SelectLangCommand extends AbstractCommand<SendMessage> implements WithCallbackStack {
     private final LocalizationService localizationService;
     private final TelegramBotProperties telegramBotProperties;
 
-    public SelectLangCommand(TelegramUserService telegramUserService, LocalizationService localizationService, TelegramBotProperties telegramBotProperties) {
-        super(telegramUserService);
+    public SelectLangCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, LocalizationService localizationService, TelegramBotProperties telegramBotProperties) {
+        super(telegramUserService, commandRegistry);
         this.localizationService = localizationService;
         this.telegramBotProperties = telegramBotProperties;
     }
@@ -66,5 +72,23 @@ public class SelectLangCommand extends AbstractCommand<SendMessage> {
     @Override
     public List<String> getCommandNames() {
         return List.of("lang", "chlang", "locale", "chlocale");
+    }
+
+    @Override
+    public CallbackStack getCallbackStack() {
+        return CallbackStack.of("lang")
+                .forCommand("lang", "Выбрать язык")
+                .withLocalizedCallbackKey(EmojiConstants.GLOBE + i18N.get("callback.common.selectlang.select.button.inline"))
+                .withSelectCommandText("Выберите язык")
+                .with(0, (callbackData) ->
+                        CallbackStackUtils.getDefaultSelectLangMessage(callbackData, telegramBotProperties.getSupportedLocales())
+                )
+                .with(1, (callbackData) ->
+                        MessageUtils.editMessage(callbackData.getMessageData())
+                                .text(handle(CommandData.from(callbackData, false)).getText())
+                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                                .build()
+                )
+                .build();
     }
 }

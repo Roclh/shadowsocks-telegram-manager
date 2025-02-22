@@ -9,6 +9,7 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.sh.scripts.CreateBandwidthRuleScript;
 import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Service;
@@ -25,8 +26,8 @@ public class LimitFlowCommand extends AbstractCommand<SendMessage> {
     private final BandwidthService bandwidthService;
     private final CreateBandwidthRuleScript createBandwidthRuleScript;
 
-    public LimitFlowCommand(TelegramUserService telegramUserService, UserService userService, BandwidthService bandwidthService, CreateBandwidthRuleScript createBandwidthRuleScript) {
-        super(telegramUserService);
+    public LimitFlowCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, UserService userService, BandwidthService bandwidthService, CreateBandwidthRuleScript createBandwidthRuleScript) {
+        super(telegramUserService, commandRegistry);
         this.userService = userService;
         this.bandwidthService = bandwidthService;
         this.createBandwidthRuleScript = createBandwidthRuleScript;

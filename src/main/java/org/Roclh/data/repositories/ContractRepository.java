@@ -20,7 +20,7 @@ public interface ContractRepository  extends JpaRepository<ContractModel, Long> 
     int updateWasNotifiedByWasNotifiedTrue();
 
 
-    List<ContractModel> findByWasNotifiedFalseAndUserModel_IsAddedTrueAndEndDateLessThan(LocalDateTime endDate);
+    List<ContractModel> findByWasNotifiedFalseAndUserModel_IsEnabledTrueAndEndDateLessThan(LocalDateTime endDate);
 
     Optional<ContractModel> findByUserModel(UserModel userModel);
 

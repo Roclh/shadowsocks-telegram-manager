@@ -7,9 +7,12 @@ import org.Roclh.data.services.ContractService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.WithCallbackStack;
 import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.callback.CallbackStack;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -18,13 +21,14 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class ListCommand extends AbstractCommand<SendMessage> {
+public class ListCommand extends AbstractCommand<SendMessage> implements WithCallbackStack {
+    private final int defaultPageSize = 5;
     private final UserService userService;
     private final BandwidthService bandwidthService;
     private final ContractService contractService;
 
-    public ListCommand(TelegramUserService telegramUserService, UserService userService, BandwidthService bandwidthService, ContractService contractService) {
-        super(telegramUserService);
+    public ListCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, UserService userService, BandwidthService bandwidthService, ContractService contractService) {
+        super(telegramUserService, commandRegistry);
         this.userService = userService;
         this.bandwidthService = bandwidthService;
         this.contractService = contractService;
@@ -41,11 +45,10 @@ public class ListCommand extends AbstractCommand<SendMessage> {
         }
         int pageNumber = 0;
         try {
-            pageNumber = InlineUtils.getPageNumber(words[1]);
+            pageNumber = InlineUtils.getPageNumber(commandData.getCommand());
         } catch (NumberFormatException e) {
             log.error(i18N.get("command.user.list.validation.page.parse", words[1]));
         }
-        final int defaultPageSize = 2;
         List<UserModel> users = userService.getUsers(defaultPageSize, pageNumber);
         long allUsersSize = userService.size();
         return MessageUtils.sendMessage(commandData.getMessageData())
@@ -67,5 +70,38 @@ public class ListCommand extends AbstractCommand<SendMessage> {
     @Override
     public List<String> getCommandNames() {
         return List.of("list", "l", "listusers");
+    }
+
+    @Override
+    public CallbackStack getCallbackStack() {
+        return CallbackStack.of("user")
+                .forCommand(getCommandNames().get(0), i18N.get("callback.user.user.inline.button.list.of.all.users"))
+                .withSelectCommandText(i18N.get("callback.user.user.select.command"))
+                .with(1, (callbackData) -> {
+                    long userSize = userService.size();
+                    if (!InlineUtils.paginationMatches(callbackData.getCallbackData())) {
+                        callbackData.setCallbackData(callbackData.getCallbackData() + " {0}");
+                    }
+                    return MessageUtils.editMessage(callbackData.getMessageData())
+                            .text(handle(CommandData.from(callbackData)).getText())
+                            .replyMarkup(InlineUtils.combineKeyboardMarkups(
+                                    InlineUtils.getListNavigationMarkup(callbackData,
+                                            userSize / defaultPageSize + (userSize % defaultPageSize > 0 ? 1 : 0)
+                                    ),
+                                    InlineUtils.getNavigationToStart(callbackData.getMessageData())))
+                            .build();
+                })
+                .with(2, (callbackData )-> {
+                    long userSize = userService.size();
+                    return MessageUtils.editMessage(callbackData.getMessageData())
+                            .text(handle(CommandData.from(callbackData)).getText())
+                            .replyMarkup(InlineUtils.combineKeyboardMarkups(
+                                    InlineUtils.getListNavigationMarkup(callbackData,
+                                            userSize / defaultPageSize + (userSize % defaultPageSize > 0 ? 1 : 0)
+                                    ),
+                                    InlineUtils.getNavigationToStart(callbackData.getMessageData())))
+                            .build();
+                })
+                .build();
     }
 }

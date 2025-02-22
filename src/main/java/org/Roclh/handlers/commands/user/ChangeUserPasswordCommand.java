@@ -6,6 +6,7 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.sh.scripts.RestartShadowsocksServerScript;
 import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
@@ -18,8 +19,8 @@ import java.util.List;
 public class ChangeUserPasswordCommand extends AbstractCommand<SendMessage> {
     private final UserService userManager;
     private final RestartShadowsocksServerScript restartScript;
-    public ChangeUserPasswordCommand(TelegramUserService telegramUserService, UserService userManager, RestartShadowsocksServerScript restartScript) {
-        super(telegramUserService);
+    public ChangeUserPasswordCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, UserService userManager, RestartShadowsocksServerScript restartScript) {
+        super(telegramUserService, commandRegistry);
         this.userManager = userManager;
         this.restartScript = restartScript;
     }

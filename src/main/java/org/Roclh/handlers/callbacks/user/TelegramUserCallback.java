@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@Deprecated
 @RequiredArgsConstructor
 public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<? extends Serializable>> {
     private final CommandHandler commandHandler;
@@ -75,17 +76,6 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
     private PartialBotApiMethod<? extends Serializable> handleOneArgumentCommand(CallbackData callbackData) {
         String command = callbackData.getCallbackData().split(" ")[1];
         return switch (command) {
-            case "listtg" -> MessageUtils.editMessage(callbackData.getMessageData())
-                    .text(getSendMessageCommandResult(callbackData))
-                    .replyMarkup(InlineUtils.combineKeyboardMarkups(
-                            InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.user.telegramuser.callback.button"), getName()),
-                            InlineUtils.getNavigationToStart(callbackData.getMessageData())
-                    ))
-                    .build();
-            case "deltg" -> MessageUtils.editMessage(callbackData.getMessageData())
-                    .text(i18N.get("callback.user.telegramuser.select.telegram.user.delete"))
-                    .replyMarkup(getSelectTelegramUserIdMarkup(callbackData, user -> true))
-                    .build();
             case "setrole" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.user.telegramuser.select.telegram.user.setrole"))
                     .replyMarkup(getSelectTelegramUserIdMarkup(callbackData, user -> true))
@@ -100,10 +90,6 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
     private PartialBotApiMethod<? extends Serializable> handleTwoArgumentCommand(CallbackData callbackData) {
         String command = callbackData.getCallbackData().split(" ")[1];
         return switch (command) {
-            case "deltg" -> MessageUtils.editMessage(callbackData.getMessageData())
-                    .text(getSendMessageCommandResult(callbackData))
-                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
-                    .build();
             case "setrole" -> MessageUtils.editMessage(callbackData.getMessageData())
                     .text(i18N.get("callback.user.telegramuser.select.role"))
                     .replyMarkup(getSelectRoleMarkup(callbackData))
@@ -132,7 +118,6 @@ public class TelegramUserCallback extends AbstractCallback<PartialBotApiMethod<?
 
     private InlineKeyboardMarkup getSelectCommandMarkup(CallbackData callbackData) {
         Map<String, String> map = new HashMap<>();
-        map.put(i18N.get("callback.user.telegramuser.inline.button.list.of.telegram.users"), "listtg");
         map.put(i18N.get("callback.user.telegramuser.inline.button.delete.telegram.user"), "deltg");
         map.put(i18N.get("callback.user.telegramuser.inline.button.set.role"), "setrole");
         return InlineUtils.getListNavigationMarkup(map,

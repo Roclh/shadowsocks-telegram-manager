@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@Deprecated
 @RequiredArgsConstructor
 public class GuideCallback extends AbstractCallback<PartialBotApiMethod<? extends Serializable>> {
 

@@ -214,7 +214,7 @@ public class InlineUtils {
 
     public static boolean paginationMatches(String command) {
         boolean hasPagination = paginationPattern.matcher(command).find();
-        log.debug("Command {} has pagination? {}", command, hasPagination);
+        log.info("Command {} has pagination? {}", command, hasPagination);
         return hasPagination;
     }
 
@@ -224,6 +224,7 @@ public class InlineUtils {
             if (matcher.find()) {
                 return Integer.parseInt(matcher.group().replace("{", "").replace("}", ""));
             } else {
+                log.error("Failed to find number in data {}", data);
                 return -1;
             }
         } catch (NumberFormatException e) {
@@ -233,5 +234,9 @@ public class InlineUtils {
             log.error("Failed to parse data, data {} does not match pattern {}", data, paginationPattern.pattern());
             return -1;
         }
+    }
+
+    public static String trimLastWord(String data) {
+        return data.substring(0, data.lastIndexOf(" "));
     }
 }

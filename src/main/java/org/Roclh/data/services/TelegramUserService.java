@@ -2,12 +2,15 @@ package org.Roclh.data.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.bot.TelegramBotProperties;
 import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.repositories.TelegramUserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +23,10 @@ public class TelegramUserService {
 
     private final TelegramUserRepository telegramUserRepository;
 
+    private final TelegramBotProperties telegramBotProperties;
+
+    @Modifying
+    @Transactional
     public boolean saveUser(@Nullable TelegramUserModel userModel) {
         if (userModel == null) {
             return false;
@@ -78,6 +85,13 @@ public class TelegramUserService {
 
     public boolean setRole(Long telegramId, Role role) {
         return telegramUserRepository.updateRoleByTelegramId(role, telegramId) > 0;
+    }
+
+    /**
+     * ONLY FOR TEST USAGE
+     */
+    public void clear() {
+        telegramUserRepository.deleteAllExcept(telegramBotProperties.getDefaultManagerId());
     }
 
 }

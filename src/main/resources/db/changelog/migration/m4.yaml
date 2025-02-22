@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: Roclh
+      preConditions:
+        - onFail: MARK_RAN
+        - and:
+            - columnExists:
+                tableName: user_model
+                columnName: is_added
+            - not:
+                columnExists:
+                  tableName: user_model
+                  columnName: is_enabled
+      changes:
+        - renameColumn:
+            tableName: user_model
+            oldColumnName: is_added
+            newColumnName: is_enabled
+            columnDataType: boolean

@@ -2,6 +2,7 @@ package org.Roclh.handlers.commands.manager;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.bot.TelegramBotStorage;
 import org.Roclh.data.Role;
 import org.Roclh.data.entities.BandwidthModel;
 import org.Roclh.data.entities.ContractModel;
@@ -13,13 +14,18 @@ import org.Roclh.data.services.ContractService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.WithCallbackStack;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.handlers.registry.CommandRegistry;
+import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.callback.CallbackStack;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaDocument;
@@ -30,22 +36,26 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? extends Serializable>> {
+public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? extends Serializable>> implements WithCallbackStack {
 
 
     private final UserService userService;
+    private final TelegramBotStorage telegramBotStorage;
     private final BandwidthService bandwidthService;
     private final ContractService contractService;
 
-    public ExportCsvCommand(TelegramUserService telegramUserService, UserService userManager,
+    public ExportCsvCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, UserService userManager, TelegramBotStorage telegramBotStorage,
                             BandwidthService bandwidthService, BandwidthRepository bandwidthRepository,
                             UserService userService, ContractService contractService) {
-        super(telegramUserService);
+        super(telegramUserService, commandRegistry);
+        this.telegramBotStorage = telegramBotStorage;
         this.bandwidthService = bandwidthService;
         this.userService = userService;
         this.contractService = contractService;
@@ -156,13 +166,13 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
 
     private File userModelToCsv(List<UserModel> users) {
         StringBuilder csvStringBuilder = new StringBuilder();
-        csvStringBuilder.append("id,tgId,password,port,isAdded\n");
+        csvStringBuilder.append("id,tgId,password,port,isEnabled\n");
         for (UserModel user : users) {
             Long id = user.getId();
             Long tgid = user.getUserModel().getId();
             String password = user.getPassword();
             Long port = user.getUsedPort();
-            boolean isAdded = user.isAdded();
+            boolean isAdded = user.isEnabled();
             csvStringBuilder.append(id).append(',')
                     .append(tgid).append(',')
                     .append(password).append(',')
@@ -258,6 +268,47 @@ public class ExportCsvCommand extends AbstractCommand<PartialBotApiMethod<? exte
             return null;
         }
         return contractFile;
+    }
+
+    @Override
+    public CallbackStack getCallbackStack() {
+        return CallbackStack.of("manager")
+                .forCommand("csv", "Экспорт CSV")
+                .with(1, (callbackData) ->
+                    MessageUtils.editMessage(callbackData.getMessageData())
+                            .text(i18N.get("callback.manager.exportcsv.select.data.type"))
+                            .replyMarkup(InlineUtils.getListNavigationMarkup(
+                                    Arrays.stream(ExportCsvCommand.FileDataTypes.values())
+                                            .collect(Collectors.toMap(ExportCsvCommand.FileDataTypes::toString, ExportCsvCommand.FileDataTypes::toString)),
+                                    (type) -> callbackData.getCallbackData() + " " + type,
+                                    callbackData.getMessageData().getLocale(),
+                                    () -> InlineUtils.trimLastWord(callbackData.getCallbackData())
+                            ))
+                            .build()
+                )
+                .with(2, (callbackData) ->{
+                            PartialBotApiMethod<?> resultMessage = handle(CommandData.from(callbackData));
+                            if (resultMessage instanceof SendMessage) {
+                                ((SendMessage) resultMessage).setReplyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()));
+                                return resultMessage;
+                            }
+                            if (resultMessage instanceof SendDocument) {
+                                callbackData.setCallbackData("start nl");
+                                ((SendDocument) resultMessage).setReplyMarkup(InlineUtils.getDefaultNavigationMarkup(callbackData));
+                                return resultMessage;
+                            }
+                            if (resultMessage instanceof SendMediaGroup) {
+                                telegramBotStorage.getTelegramBot().sendMessage(resultMessage);
+                                telegramBotStorage.getTelegramBot().sendMessage(
+                                        MessageUtils.sendMessage(callbackData.getMessageData()).text(i18N.get("callback.manager.export.csv.success.result"))
+                                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData())).build()
+                                );
+                                return MessageUtils.deleteMessage(callbackData.getMessageData());
+                            }
+                            throw new RuntimeException("Illegal state");
+                        }
+                        )
+                .build();
     }
 
     public enum FileDataTypes {

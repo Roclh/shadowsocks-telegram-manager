@@ -3,23 +3,30 @@ package org.Roclh.handlers.commands.telegramUser;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.bot.TelegramBotStorage;
 import org.Roclh.data.Role;
+import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.WithCallbackStack;
 import org.Roclh.handlers.messaging.CommandData;
+import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.callback.CallbackStack;
+import org.Roclh.utils.callback.CallbackStackUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.List;
 
 @Slf4j
 @Component
-public class SetRoleCommand extends AbstractCommand<SendMessage> {
+public class SetRoleCommand extends AbstractCommand<SendMessage> implements WithCallbackStack {
     private final TelegramBotStorage botStorage;
 
-    public SetRoleCommand(TelegramUserService telegramUserService, TelegramBotStorage botStorage) {
-        super(telegramUserService);
+    public SetRoleCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, TelegramBotStorage botStorage) {
+        super(telegramUserService, commandRegistry);
         this.botStorage = botStorage;
     }
 
@@ -88,5 +95,39 @@ public class SetRoleCommand extends AbstractCommand<SendMessage> {
     @Override
     public List<String> getCommandNames() {
         return List.of("setrole", "role", "man");
+    }
+
+    @Override
+    public CallbackStack getCallbackStack() {
+        return CallbackStack.of("tguser")
+                .forCommand("role", i18N.get("callback.user.telegramuser.inline.button.set.role"))
+                .with(1, (callbackData) ->
+                        CallbackStackUtils.getDefaultSelectTelegramUserIdMessage(callbackData,
+                                i18N.get("callback.user.telegramuser.select.telegram.user.setrole"),
+                                telegramUserService,
+                                user ->
+                                        telegramUserService.isAllowed(
+                                                callbackData.getMessageData().getTelegramId(),
+                                                user.getRole().up()
+                                        )
+                        )
+                )
+                .with(2, (callbackData) -> {
+                            String[] command = callbackData.getCallbackData().split(" ");
+                            Long selectedId = Long.parseLong(command[command.length - 1]);
+                            return CallbackStackUtils.getDefaultSelectRoleMessage(callbackData,
+                                    telegramUserService.getUser(selectedId).map(TelegramUserModel::getRole).orElseThrow(),
+                                    i18N.get("callback.user.telegramuser.select.telegram.user.setrole"),
+                                    telegramUserService
+                            );
+                        }
+                )
+                .with(3, (callbackData) ->
+                        MessageUtils.editMessage(callbackData.getMessageData())
+                                .text(handle(CommandData.from(callbackData)).getText())
+                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                                .build()
+                )
+                .build();
     }
 }

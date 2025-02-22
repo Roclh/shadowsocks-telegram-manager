@@ -36,8 +36,16 @@ public class CommandData {
      */
     @NonNull
     public static CommandData from(@NonNull CallbackData callbackData){
+        return from(callbackData, true);
+    }
+
+    @NonNull
+    public static CommandData from(@NonNull CallbackData callbackData, boolean trim){
         return CommandData.builder()
-                .command(callbackData.getCallbackData())
+                .command(trim ?
+                        callbackData.getCallbackData().substring(callbackData.getCallbackData().indexOf(" ") + 1) :
+                        callbackData.getCallbackData()
+                )
                 .messageData(callbackData.getMessageData())
                 .build();
     }

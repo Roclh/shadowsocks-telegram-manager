@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@Deprecated
 @RequiredArgsConstructor
 public class SelectLangCallback extends AbstractCallback<EditMessageText> {
     private final TelegramBotProperties botProperties;

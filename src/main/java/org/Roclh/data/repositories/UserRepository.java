@@ -38,8 +38,8 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
 
     @Transactional
     @Modifying
-    @Query("update UserModel u set u.isAdded = ?1 where u.userModel.telegramId = ?2")
-    int updateIsAddedByUserModel_TelegramId(boolean isAdded, Long telegramId);
+    @Query("update UserModel u set u.isEnabled = ?1 where u.userModel.telegramId = ?2")
+    int updateIsEnabledByUserModel_TelegramId(boolean isEnabled, Long telegramId);
 
     boolean existsByUserModel_TelegramId(Long telegramId);
 
@@ -47,6 +47,6 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
 
     UserModel findByUserModel(TelegramUserModel userModel);
 
-    List<UserModel> findByIsAddedTrueAndUsedPortNotNullAndPasswordNotNull();
+    List<UserModel> findByIsEnabledTrueAndUsedPortNotNullAndPasswordNotNull();
 
 }

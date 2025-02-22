@@ -17,9 +17,7 @@ public class ShScriptsMocks {
         CreateBandwidthRulesetScript createBandwidthRulesetScript = mock(CreateBandwidthRulesetScript.class);
         Mockito.doNothing().when(createBandwidthRulesetScript).init();
         Mockito.when(createBandwidthRulesetScript.execute(Mockito.any())).then((ans) -> false);
+        Mockito.when(createBandwidthRulesetScript.execute()).then((ans) -> false);
         return createBandwidthRulesetScript;
     }
-
-
-
 }

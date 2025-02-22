@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.util.List;
 
 @Component
+@Deprecated
 @RequiredArgsConstructor
 public class HelpCallback extends AbstractCallback<EditMessageText> {
     private final TelegramUserService telegramUserService;

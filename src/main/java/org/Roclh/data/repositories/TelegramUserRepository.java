@@ -5,6 +5,7 @@ import org.Roclh.data.entities.TelegramUserModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,4 +27,9 @@ public interface TelegramUserRepository extends JpaRepository<TelegramUserModel,
     @Transactional
     @Modifying
     long deleteByTelegramId(Long telegramId);
+
+    @Transactional
+    @Modifying
+    @Query("delete from TelegramUserModel e where e.telegramId != :id")
+    void deleteAllExcept(@Param("id") Long id);
 }

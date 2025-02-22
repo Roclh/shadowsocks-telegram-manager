@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class PasswordUtils {
     private static final String usedSymbols = "0123456789abcdefghijklmnopqrstuvwxyz";
-    private static final Pattern passwordPattern = Pattern.compile("[0-9a-zA-Z!$#^~]{5,15}");
+    private static final Pattern passwordPattern = Pattern.compile("[0-9a-zA-Z!$#^~_]{5,15}");
 
     public static boolean validate(String password) {
         return passwordPattern.matcher(password).matches();

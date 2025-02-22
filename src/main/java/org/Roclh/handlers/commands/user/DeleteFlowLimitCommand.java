@@ -9,6 +9,7 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.sh.scripts.DeleteBandwidthRuleScript;
 import org.Roclh.utils.MessageUtils;
 import org.springframework.stereotype.Component;
@@ -22,8 +23,8 @@ public class DeleteFlowLimitCommand extends AbstractCommand<SendMessage> {
     private final BandwidthService bandwidthService;
     private final UserService userService;
     private final DeleteBandwidthRuleScript deleteBandwidthRuleScript;
-    public DeleteFlowLimitCommand(TelegramUserService telegramUserService, BandwidthService bandwidthService, UserService userService, DeleteBandwidthRuleScript deleteBandwidthRuleScript) {
-        super(telegramUserService);
+    public DeleteFlowLimitCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, BandwidthService bandwidthService, UserService userService, DeleteBandwidthRuleScript deleteBandwidthRuleScript) {
+        super(telegramUserService, commandRegistry);
         this.bandwidthService = bandwidthService;
         this.userService = userService;
         this.deleteBandwidthRuleScript = deleteBandwidthRuleScript;

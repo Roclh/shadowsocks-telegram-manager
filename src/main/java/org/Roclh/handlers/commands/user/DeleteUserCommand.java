@@ -4,23 +4,29 @@ import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.WithCallbackStack;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
+import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.sh.scripts.DisableShadowsocksServerScript;
+import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.callback.CallbackStack;
+import org.Roclh.utils.callback.CallbackStackUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
-public class DeleteUserCommand extends AbstractCommand<SendMessage> {
+public class DeleteUserCommand extends AbstractCommand<SendMessage> implements WithCallbackStack {
     private final UserService userService;
     private final DisableShadowsocksServerScript disableScript;
 
-    public DeleteUserCommand(TelegramUserService telegramUserService, UserService userService, DisableShadowsocksServerScript disableScript) {
-        super(telegramUserService);
+    public DeleteUserCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, UserService userService, DisableShadowsocksServerScript disableScript) {
+        super(telegramUserService, commandRegistry);
         this.userService = userService;
         this.disableScript = disableScript;
     }
@@ -62,5 +68,23 @@ public class DeleteUserCommand extends AbstractCommand<SendMessage> {
     @Override
     public List<String> getCommandNames() {
         return List.of("del", "delete", "rem", "remove");
+    }
+
+    @Override
+    public CallbackStack getCallbackStack() {
+        return CallbackStack.of("user")
+                .forCommand("del", i18N.get("callback.user.user.inline.button.delete.user"))
+                .with(1, (callbackData) ->
+                        CallbackStackUtils.getDefaultSelectTelegramUserIdMessage(callbackData,
+                                i18N.get("callback.user.user.select.user.delete"),
+                                telegramUserService,
+                                (user) -> true)
+                )
+                .with(2, (callbackData) ->
+                        MessageUtils.editMessage(callbackData.getMessageData())
+                                .text(handle(CommandData.from(callbackData)).getText())
+                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                                .build())
+                .build();
     }
 }

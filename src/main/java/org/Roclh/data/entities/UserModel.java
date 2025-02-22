@@ -6,13 +6,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
@@ -42,13 +40,13 @@ public class UserModel {
     private Plugin plugin = Plugin.DEFAULT;
     @Nullable
     private Long usedPort;
-    private boolean isAdded;
+    private boolean isEnabled;
 
     @Override
     public String toString() {
         return "[" + userModel.getTelegramId() + ":'" + userModel.getTelegramName() + "']: " +
                 " usedPort='" + usedPort + '\'' +
-                ", isAdded=" + isAdded +
+                ", isEnabled=" + isEnabled +
                 ", password=" + password;
     }
 
@@ -68,7 +66,7 @@ public class UserModel {
                 "<a href=\"tg://user?id=" + userModel.getTelegramId() + "\">" + userModel.getTelegramId() + "</a>" +
                 "\n<u>Used port</u>: " + usedPort +
                 "\n<u>Password</u>: <tg-spoiler>" + password + "</tg-spoiler>"+
-                "\n<u>Is added</u>: " + isAdded +
+                "\n<u>Is enabled</u>: " + isEnabled +
                 "\n<u>Plugin</u>: " + plugin;
     }
 

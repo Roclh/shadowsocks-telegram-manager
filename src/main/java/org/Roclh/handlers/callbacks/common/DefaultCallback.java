@@ -20,7 +20,7 @@ public class DefaultCallback extends AbstractCallback<PartialBotApiMethod<? exte
     private final CommandHandler commandHandler;
     @Override
     public PartialBotApiMethod<? extends Serializable> apply(CallbackData callbackData) {
-        SendMessage sendMessage = (SendMessage) commandHandler.handleCommands(CommandData.from(callbackData));
+        SendMessage sendMessage = (SendMessage) commandHandler.handleCommands(CommandData.from(callbackData, false));
         return MessageUtils.editMessage(callbackData.getMessageData())
                 .text(sendMessage.getText())
                 .replyMarkup((InlineKeyboardMarkup) sendMessage.getReplyMarkup())

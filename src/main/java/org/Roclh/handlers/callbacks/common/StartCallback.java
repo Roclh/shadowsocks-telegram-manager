@@ -16,6 +16,7 @@ import java.io.Serializable;
 
 @Slf4j
 @Component
+@Deprecated
 @RequiredArgsConstructor
 public class StartCallback extends AbstractCallback<PartialBotApiMethod<? extends Serializable>> {
     private final CommandHandler commandHandler;
@@ -23,7 +24,7 @@ public class StartCallback extends AbstractCallback<PartialBotApiMethod<? extend
     @Override
     public PartialBotApiMethod<? extends Serializable> apply(CallbackData callbackData) {
         String[] command = callbackData.getCallbackData().split(" ");
-        SendMessage commandResult = (SendMessage) commandHandler.handleCommands(CommandData.from(callbackData));
+        SendMessage commandResult = (SendMessage) commandHandler.handleCommands(CommandData.from(callbackData, false));
         if (command.length == 1) {
             return MessageUtils.editMessage(callbackData.getMessageData())
                     .text(commandResult.getText())
