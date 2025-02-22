@@ -54,7 +54,7 @@ public class SetRoleCommand extends AbstractCommand<SendMessage> implements With
         }
         if (!telegramUserService.exists(telegramUserId)) {
             log.error("Failed to execute command - user with id {} does not exists!", telegramUserId);
-            sendMessage.text(i18N.get("command.manager.setrole.validation.id.not.exists", words[2]));
+            sendMessage.text(i18N.get("command.manager.setrole.validation.id.not.exists", telegramUserId));
             return sendMessage.build();
         }
         if (!telegramUserService.isAllowed(commandData.getMessageData().getTelegramId(), role)) {
