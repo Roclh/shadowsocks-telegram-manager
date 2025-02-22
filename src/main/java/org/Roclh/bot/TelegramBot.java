@@ -61,12 +61,20 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(commandsHandler.handleCommands(update));
             }
         } else if (update.hasCallbackQuery()) {
+            Long telegramId = update.getCallbackQuery().getFrom().getId();
+            if(waitingForInput.containsKey(telegramId)){
+                cancelSyncUpdate(telegramId);
+            }
             sendMessage(callbackHandler.handleCallbacks(update));
         }
     }
 
     public static void waitSyncUpdate(@NonNull Long telegramId, @NonNull Function<CommandData, PartialBotApiMethod<? extends Serializable>> onUpdate) {
         waitingForInput.put(telegramId, onUpdate);
+    }
+
+    public static void cancelSyncUpdate(@NonNull Long telegramId){
+        waitingForInput.remove(telegramId);
     }
 
     public <T extends Serializable> void sendMessage(PartialBotApiMethod<T> sendMessage) {

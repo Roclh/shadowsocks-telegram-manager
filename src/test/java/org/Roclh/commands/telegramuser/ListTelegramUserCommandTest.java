@@ -1,9 +1,7 @@
 package org.Roclh.commands.telegramuser;
 
-import org.Roclh.bot.TelegramBotProperties;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
-import org.Roclh.handlers.commands.telegramUser.DeleteTelegramUserCommand;
 import org.Roclh.handlers.commands.telegramUser.ListTelegramUserCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;

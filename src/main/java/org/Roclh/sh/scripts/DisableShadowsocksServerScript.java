@@ -12,7 +12,7 @@ public class DisableShadowsocksServerScript extends AbstractShScript<Boolean> {
         super("disable_user_java_script.sh", """
                 #!/bin/bash
                           DIR=/etc/shadowsocks-libev
-                          
+                
                           if [ $(grep ${1} ${DIR}/justusers.txt | wc -l) -ne 0 ]; then
                                   grep -v ${1} ${DIR}/justusers.txt > ${DIR}/tmpfile2; mv ${DIR}/tmpfile2 ${DIR}/justusers.txt
                                   screen -S ${1} -X quit
@@ -21,7 +21,7 @@ public class DisableShadowsocksServerScript extends AbstractShScript<Boolean> {
                           else
                                   echo no user ${1} check screen -ls and netstat -ltp
                           fi
-                          
+                
                           netstat -ltp | grep ss-server
                 """);
     }

@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -109,7 +108,7 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
 
     @Override
     public CallbackStack getCallbackStack() {
-        return CallbackStack.of("user")
+        return telegramUserService.getUsers(user -> !userService.isAddedUser(user)).isEmpty() ? null : CallbackStack.of("user")
                 .forCommand("addnopwd", i18N.get("callback.user.user.inline.button.add.with.gen.password"))
                 .with(1, (callbackData) ->
                         CallbackStackUtils.getDefaultSelectTelegramUserIdMessage(

@@ -6,7 +6,6 @@ import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
-import org.Roclh.handlers.CallbackHandler;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.WithCallbackStack;
 import org.Roclh.handlers.messaging.CommandData;

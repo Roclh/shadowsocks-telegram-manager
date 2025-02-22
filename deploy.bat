@@ -2,7 +2,10 @@
 
 chcp 65001
 
-call mvn clean package -DskipTests
+echo Decomposing existing docker container
+docker-compose down
+
+call mvn clean package -P silent-tests
 
 echo Deleting previous jar
 del "%CD%\src\main\docker\*.jar"

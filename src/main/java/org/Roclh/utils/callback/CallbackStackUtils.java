@@ -1,25 +1,32 @@
 package org.Roclh.utils.callback;
 
+import org.Roclh.bot.TelegramBot;
 import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.messaging.CallbackData;
+import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.PasswordUtils;
 import org.Roclh.utils.i18n.I18N;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class CallbackStackUtils {
 
-    public static EditMessageText getDefaultSelectPortMessage(CallbackData callbackData, String portMessage, UserService userService){
+    public static EditMessageText getDefaultSelectPortMessage(CallbackData callbackData, String portMessage, UserService userService) {
         return MessageUtils.editMessage(callbackData.getMessageData())
                 .text(portMessage)
                 .replyMarkup(InlineUtils.getListNavigationMarkup(userService.getAvailablePorts(5)
@@ -31,7 +38,7 @@ public class CallbackStackUtils {
                 .build();
     }
 
-    public static EditMessageText getDefaultSelectTelegramUserIdMessage(CallbackData callbackData, String userMessage, TelegramUserService telegramUserService, Predicate<TelegramUserModel> filter){
+    public static EditMessageText getDefaultSelectTelegramUserIdMessage(CallbackData callbackData, String userMessage, TelegramUserService telegramUserService, Predicate<TelegramUserModel> filter) {
         return MessageUtils.editMessage(callbackData.getMessageData())
                 .text(userMessage)
                 .replyMarkup(InlineUtils.getListNavigationMarkup(telegramUserService
@@ -47,7 +54,7 @@ public class CallbackStackUtils {
                 .build();
     }
 
-    public static EditMessageText getDefaultSelectUserIdMessage(CallbackData callbackData, String userMessage, UserService userService, Predicate<UserModel> filter){
+    public static EditMessageText getDefaultSelectUserIdMessage(CallbackData callbackData, String userMessage, UserService userService, Predicate<UserModel> filter) {
         return MessageUtils.editMessage(callbackData.getMessageData())
                 .text(userMessage)
                 .replyMarkup(InlineUtils.getListNavigationMarkup(userService
@@ -63,7 +70,7 @@ public class CallbackStackUtils {
                 .build();
     }
 
-    public static EditMessageText getDefaultSelectRoleMessage(CallbackData callbackData, Role selectedRole, String userMesage, TelegramUserService telegramUserService){
+    public static EditMessageText getDefaultSelectRoleMessage(CallbackData callbackData, Role selectedRole, String userMesage, TelegramUserService telegramUserService) {
         MessageData messageData = callbackData.getMessageData();
         return MessageUtils.editMessage(callbackData.getMessageData())
                 .text(userMesage)
@@ -78,7 +85,7 @@ public class CallbackStackUtils {
                 .build();
     }
 
-    public static EditMessageText getDefaultSelectLangMessage(CallbackData callbackData, List<String> supportedLocales){
+    public static EditMessageText getDefaultSelectLangMessage(CallbackData callbackData, List<String> supportedLocales) {
         I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
         return MessageUtils.editMessage(callbackData.getMessageData())
                 .text(i18N.get("callback.common.selectlang.select.lang.message"))
@@ -88,6 +95,26 @@ public class CallbackStackUtils {
                         callbackData.getMessageData().getLocale(),
                         () -> "start"
                 ))
+                .build();
+    }
+
+    public static PartialBotApiMethod<? extends Serializable> getDefaultWaitForPasswordInput(CallbackData callbackData, Function<CommandData, PartialBotApiMethod<? extends Serializable>> handler) {
+        I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
+        TelegramBot.waitSyncUpdate(callbackData.getMessageData().getTelegramId(), (commandData) -> {
+            if (PasswordUtils.validate(commandData.getCommand())) {
+                callbackData.setCallbackData(callbackData.getCallbackData() + " " + commandData.getCommand());
+                return MessageUtils.sendMessage(callbackData.getMessageData()).text(((SendMessage) handler.apply(CommandData.from(callbackData))).getText())
+                        .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                        .build();
+            }
+            return MessageUtils.sendMessage(callbackData.getMessageData())
+                    .text(i18N.get("callback.user.user.failed.validate.password"))
+                    .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                    .build();
+        });
+        return MessageUtils.editMessage(callbackData.getMessageData())
+                .text(i18N.get("callback.user.user.write.new.password"))
+                .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), InlineUtils.trimLastWord(callbackData.getCallbackData())))
                 .build();
     }
 }

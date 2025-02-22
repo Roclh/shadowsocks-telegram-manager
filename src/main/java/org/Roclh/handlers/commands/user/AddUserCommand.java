@@ -114,7 +114,7 @@ public class AddUserCommand extends AbstractCommand<SendMessage> implements With
 
     @Override
     public CallbackStack getCallbackStack() {
-        return CallbackStack.of("user")
+        return telegramUserService.getUsers(user -> !userService.isAddedUser(user)).isEmpty() ? null : CallbackStack.of("user")
                 .forCommand("add", i18N.get("callback.user.user.inline.button.add.with.defined.password"))
                 .withLocalizedCallbackKey(i18N.get("callback.user.user.inline.button.manage.users"))
                 .with(1, (callbackData) ->
@@ -126,25 +126,10 @@ public class AddUserCommand extends AbstractCommand<SendMessage> implements With
                                 ))
                 .with(2, (callbackData) ->
                         CallbackStackUtils.getDefaultSelectPortMessage(callbackData, i18N.get("callback.user.user.select.port"), userService))
-                .with(3, (callbackData) -> {
-                            TelegramBot.waitSyncUpdate(callbackData.getMessageData().getTelegramId(), (commandData) -> {
-                                if (PasswordUtils.validate(commandData.getCommand())) {
-                                    callbackData.setCallbackData(callbackData.getCallbackData() + " " + commandData.getCommand());
-                                    return MessageUtils.sendMessage(callbackData.getMessageData()).text(handle(CommandData.from(callbackData)).getText())
-                                            .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
-                                            .build();
-                                }
-                                return MessageUtils.sendMessage(callbackData.getMessageData())
-                                        .text(i18N.get("callback.user.user.failed.validate.password"))
-                                        .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
-                                        .build();
-                            });
-                            return MessageUtils.editMessage(callbackData.getMessageData())
-                                    .text(i18N.get("callback.user.user.write.new.password"))
-                                    .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), InlineUtils.trimLastWord(callbackData.getCallbackData())))
-                                    .build();
-                        }
-                        )
+                .with(3, (callbackData) ->
+                        CallbackStackUtils.getDefaultWaitForPasswordInput(callbackData,
+                                this::handle)
+                )
                 .build();
     }
 }
