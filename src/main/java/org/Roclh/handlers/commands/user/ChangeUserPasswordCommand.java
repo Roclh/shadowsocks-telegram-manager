@@ -1,7 +1,6 @@
 package org.Roclh.handlers.commands.user;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.bot.TelegramBot;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
@@ -10,9 +9,7 @@ import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.sh.scripts.RestartShadowsocksServerScript;
-import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
-import org.Roclh.utils.PasswordUtils;
 import org.Roclh.utils.callback.CallbackStack;
 import org.Roclh.utils.callback.CallbackStackUtils;
 import org.springframework.stereotype.Component;
@@ -46,7 +43,7 @@ public class ChangeUserPasswordCommand extends AbstractCommand<SendMessage> impl
         Long telegramId = Long.valueOf(words[1]);
         String password = words[2];
 
-        if (userService.getUser(telegramId).map(restartScript::execute).orElse(false)) {
+        if (userService.getUser(telegramId).map(userModel -> restartScript.execute(userModel, false)).orElse(false)) {
             log.error("Failed to change password - failed to execute sh script for user with id {}", telegramId);
             sendMessage.setText("Failed to change password - failed to execute sh script for user with id " + telegramId);
             return sendMessage;
@@ -74,12 +71,13 @@ public class ChangeUserPasswordCommand extends AbstractCommand<SendMessage> impl
     public CallbackStack getCallbackStack() {
         return CallbackStack.of("user")
                 .forCommand("chpwd", i18N.get("callback.user.chpwd.inline.button.change.password"))
+                .withCommandDisplayCondition((telegramId) -> !userService.getAllUsers().isEmpty())
                 .with(1, (callbackData) ->
-                        CallbackStackUtils.getDefaultSelectTelegramUserIdMessage(
+                        CallbackStackUtils.getDefaultSelectUserIdMessage(
                                 callbackData,
                                 i18N.get("callback.user.chpwd.select.user.to.change.password"),
-                                telegramUserService,
-                                (telegramUserModel) -> true
+                                userService,
+                                (userModel) -> true
                         ))
                 .with(2, (callbackData) ->
                         CallbackStackUtils.getDefaultWaitForPasswordInput(callbackData,

@@ -16,12 +16,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
- *
  * @author Roclh
  * @since 22.02.2025
- *
+ * <p>
  * Class to simplify building callback handlers
  * <p>
  * To build new callbackStack you need to refer to callbackStackBuilder by static method .of(), where you pass callbackKey
@@ -37,7 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * CallbackStacks can be merged with method .merge(). You can merge only callbackStacks with same callbackKey. All callbacks for each
  * command are preserved in callbackStack map
- *
  */
 
 @Slf4j
@@ -48,6 +48,7 @@ public class CallbackStack {
     private String selectCommandText;
     private final boolean util;
     private final Map<String, String> commandLocalizationMap;
+    private final Map<String, Predicate<Long>> commandDisplayConditionsMap;
     private final Map<String, Map<Integer, CallbackArgumentHandler>> callbackStack;
 
     private CallbackStack(String callbackKey,
@@ -55,12 +56,14 @@ public class CallbackStack {
                           String selectCommandText,
                           boolean util,
                           Map<String, String> commandLocalizationMap,
+                          Map<String, Predicate<Long>> commandDisplayConditionsMap,
                           Map<String, Map<Integer, CallbackArgumentHandler>> callbackStack) {
         this.callbackKey = callbackKey;
         this.localizedCallbackKey = localizedCallbackKey;
         this.selectCommandText = selectCommandText;
         this.util = util;
         this.commandLocalizationMap = commandLocalizationMap;
+        this.commandDisplayConditionsMap = commandDisplayConditionsMap;
         this.callbackStack = callbackStack;
     }
 
@@ -68,6 +71,7 @@ public class CallbackStack {
         Assert.isTrue(this.callbackKey.equals(callbackStack.getCallbackKey()), "Callback stacks can be merged only if contains same key");
         this.callbackStack.putAll(callbackStack.getCallbackStack());
         this.commandLocalizationMap.putAll(callbackStack.getCommandLocalizationMap());
+        this.commandDisplayConditionsMap.putAll(callbackStack.getCommandDisplayConditionsMap());
         this.localizedCallbackKey = callbackKey.equals(localizedCallbackKey) ? callbackStack.getLocalizedCallbackKey() : localizedCallbackKey;
         this.selectCommandText = this.selectCommandText == null ? callbackStack.getSelectCommandText() : this.selectCommandText;
         return this;
@@ -83,7 +87,7 @@ public class CallbackStack {
         String[] words = callbackData.getCallbackData().split(" ");
         I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
         int len = words.length - 1;
-        if(callbackStack.containsKey(words[0])){
+        if (callbackStack.containsKey(words[0])) {
             Map<Integer, CallbackArgumentHandler> callbackArgHandler = callbackStack.get(words[0]);
             if (callbackArgHandler.containsKey(len)) {
                 return callbackArgHandler.get(len).handle(callbackData);
@@ -97,7 +101,15 @@ public class CallbackStack {
         if (len == 0) {
             return MessageUtils.editMessage(callbackData.getMessageData())
                     .text(selectCommandText == null ? i18N.get("callback.common.select.command") : selectCommandText)
-                    .replyMarkup(InlineUtils.getListNavigationMarkup(commandLocalizationMap,
+                    .replyMarkup(InlineUtils.getListNavigationMarkup(commandLocalizationMap.entrySet()
+                                    .stream()
+                                    .filter(localizationEntry -> {
+                                        if (!commandDisplayConditionsMap.containsKey(localizationEntry.getValue())) {
+                                            return true;
+                                        }
+                                        return commandDisplayConditionsMap.get(localizationEntry.getValue()).test(callbackData.getMessageData().getTelegramId());
+                                    })
+                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
                             (data) -> callbackData.getCallbackData() + " " + data,
                             callbackData.getMessageData().getLocale(),
                             () -> "start"))
@@ -140,12 +152,27 @@ public class CallbackStack {
         );
     }
 
+    public List<InlineKeyboardButton> getCallbackStackButton(Long tgId) {
+        return !commandDisplayConditionsMap.isEmpty() &&
+                commandDisplayConditionsMap.values()
+                        .stream()
+                        .noneMatch(condition -> condition.test(tgId)) ?
+                null : List.of(
+                InlineKeyboardButton.builder()
+                        .text(this.getLocalizedCallbackKey())
+                        .callbackData(this.getCallbackKey())
+                        .build()
+        );
+
+    }
+
     public static class CallbackStackBuilder {
         private final String callbackKey;
         private String localizedCallbackKey;
         private String selectCommandText = null;
         private String command = null;
         private boolean util = false;
+        private final Map<String, Predicate<Long>> displayConditions = new ConcurrentHashMap<>();
         private final Map<String, String> commandLocalizationMap = new LinkedHashMap<>();
         private final Map<String, Map<Integer, CallbackArgumentHandler>> callbackStack = new LinkedHashMap<>();
 
@@ -156,6 +183,12 @@ public class CallbackStack {
 
         public CallbackStackBuilder withLocalizedCallbackKey(String callbackKeyLocalization) {
             this.localizedCallbackKey = callbackKeyLocalization;
+            return this;
+        }
+
+        public CallbackStackBuilder withCommandDisplayCondition(Predicate<Long> displayCondition) {
+            Assert.notNull(command, "Condition requires a command");
+            this.displayConditions.put(command, displayCondition);
             return this;
         }
 
@@ -197,7 +230,13 @@ public class CallbackStack {
         }
 
         public CallbackStack build() {
-            return new CallbackStack(callbackKey, localizedCallbackKey, selectCommandText, util, commandLocalizationMap, callbackStack);
+            return new CallbackStack(callbackKey,
+                    localizedCallbackKey,
+                    selectCommandText,
+                    util,
+                    commandLocalizationMap,
+                    displayConditions,
+                    callbackStack);
         }
 
     }

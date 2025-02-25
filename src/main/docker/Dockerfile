@@ -24,13 +24,13 @@ RUN apk upgrade --update \
 RUN wget -q https://github.com/shadowsocks/v2ray-plugin/releases/download/v1.3.2/v2ray-plugin-linux-amd64-v1.3.2.tar.gz
 
 # Распаковываем архив в текущую директорию (с поддиректорией)
-RUN tar -xzf v2ray-plugin-linux-amd64-v1.3.2.tar.gz
+RUN tar -xf v2ray-plugin-linux-amd64-v1.3.2.tar.gz
 
-# Перемещаем файл из поддиректории в /usr/local/bin
-RUN mv v2ray-plugin_linux_amd64 /usr/local/bin/
+# Перемещаем файл из поддиректории в /usr/bin/v2ray-plugin
+RUN cp v2ray-plugin_linux_amd64 /usr/bin/v2ray-plugin
 
 # Даем права на выполнение
-RUN chmod +x /usr/local/bin/v2ray-plugin_linux_amd64
+RUN chmod +x /usr/bin/v2ray-plugin
 
 # Удаляем ненужные файлы
 RUN rm -rf v2ray-plugin-linux-amd64-v1.3.2.tar.gz

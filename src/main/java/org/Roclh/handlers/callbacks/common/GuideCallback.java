@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.callbacks.AbstractCallback;
-import org.Roclh.handlers.commands.common.GuideCommand;
+import org.Roclh.handlers.commands.support.GuideCommand;
 import org.Roclh.handlers.messaging.CallbackData;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.utils.InlineUtils;

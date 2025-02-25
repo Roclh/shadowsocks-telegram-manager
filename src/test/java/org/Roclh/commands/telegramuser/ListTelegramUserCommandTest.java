@@ -43,14 +43,15 @@ public class ListTelegramUserCommandTest extends TelegramUserTestBase {
 
     @Test
     public void whenCorrectCommand_thenCorrectAnswer() {
-        String command = "listtg";
-        List<TelegramUserModel> allUsers = telegramUserService.getUsers();
+        String command = "listtg {0}";
+        List<TelegramUserModel> users = telegramUserService.getUsers(5, 0);
+        long allUsersSize = telegramUserService.size();
         SendMessage result = listTelegramUserCommand.handle(CommandData.builder()
                 .command(command)
                 .messageData(messageData)
                 .build());
-        Assertions.assertEquals(allUsers.size() + " telegram users:\n" +
-                allUsers.stream().map(TelegramUserModel::toFormattedString)
+        Assertions.assertEquals(allUsersSize + " telegram users from 0 to 5:\n" +
+                users.stream().map(TelegramUserModel::toFormattedString)
                         .collect(Collectors.joining("\n")), result.getText());
     }
 

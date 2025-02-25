@@ -15,10 +15,8 @@ import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
 import org.Roclh.utils.callback.CallbackStack;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +53,7 @@ public class RestartAllUsersCommand extends AbstractCommand<SendMessage> impleme
         return userService.getAllUsers().stream()
                 .filter(UserModel::isEnabled)
                 .map((user) -> user.getUserModel().getTelegramName() +
-                        (restartShadowsocksServerScript.execute(user) ? " successful restarted" : " failed restart"))
+                        (restartShadowsocksServerScript.execute(user, false) ? " successful restarted" : " failed restart"))
                 .collect(Collectors.toList());
     }
 

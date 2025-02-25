@@ -11,25 +11,25 @@ public class EnableV2RayShadowsocksServerScript extends AbstractShScript<Boolean
 
     protected EnableV2RayShadowsocksServerScript() {
         super("enableV2RayShadowsocksServerScript.sh", """
-                    #!/bin/bash
+                #!/bin/bash
                 
-                    DIR=/etc/shadowsocks-libev
-                    BASE_CONFIG=${DIR}/${1}.json
-                    if [ $(netstat -tlp | grep -o ${2}" " | wc -l) -eq 0 ]; then
-                            cp ${DIR}/config-v2ray-example.json ${BASE_CONFIG}
+                DIR=/etc/shadowsocks-libev
+                BASE_CONFIG=${DIR}/${1}.json
+                if [ $(netstat -tlp | grep -o ${2}" " | wc -l) -eq 0 ]; then
+                     cp ${DIR}/config-v2ray-example.json ${BASE_CONFIG}
                 
-                            sed -i '/server_port/c\\    "server_port":'${2}',' ${BASE_CONFIG}
-                            sed -i '/password/c\\    "password":"'${3}'",' ${BASE_CONFIG}
+                     sed -i '/server_port/c\\    "server_port":'${2}',' ${BASE_CONFIG}
+                     sed -i '/password/c\\    "password":"'${3}'",' ${BASE_CONFIG}
                 
-                            screen -dmS ${1} ss-server -c /etc/shadowsocks-libev/${1}.json -u
-                            echo screen ${1} started
-                            echo screen -dmS ${1} ss-server -c /etc/shadowsocks-libev/${1}.json -u >> /etc/shadowsocks-libev/allactiveusers.txt
-                            echo ${1}>> /etc/shadowsocks-libev/justusers.txt
-                    else
-                            echo screen ${1} port ${2} already exists or other problem
-                    fi
+                     screen -dmS ${1} ss-server -c /etc/shadowsocks-libev/${1}.json -u
+                     echo screen ${1} started
+                     echo screen -dmS ${1} ss-server -c /etc/shadowsocks-libev/${1}.json -u >> /etc/shadowsocks-libev/allactiveusers.txt
+                     echo ${1}>> /etc/shadowsocks-libev/justusers.txt
+                else
+                     echo screen ${1} port ${2} already exists or other problem
+                fi
                 
-                    netstat -tlp | grep ss-server
+                netstat -tlp | grep ss-server
                 """);
     }
 
@@ -40,8 +40,9 @@ public class EnableV2RayShadowsocksServerScript extends AbstractShScript<Boolean
                 (output) -> output.contains("started"));
     }
 
-    public Boolean execute(UserModel userModel){
+    public Boolean execute(UserModel userModel) {
         if (userModel.getUsedPort() == null || userModel.getPassword() == null) {
+            log.error("Failed to execute - password or port not exists");
             return false;
         }
         return this.execute(userModel.getUserModel().getTelegramName() + ":" + userModel.getUserModel().getTelegramId(),

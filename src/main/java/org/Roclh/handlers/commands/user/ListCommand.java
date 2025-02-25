@@ -76,6 +76,7 @@ public class ListCommand extends AbstractCommand<SendMessage> implements WithCal
     public CallbackStack getCallbackStack() {
         return CallbackStack.of("user")
                 .forCommand(getCommandNames().get(0), i18N.get("callback.user.user.inline.button.list.of.all.users"))
+                .withLocalizedCallbackKey(i18N.get("callback.user.user.inline.button.manage.users"))
                 .withSelectCommandText(i18N.get("callback.user.user.select.command"))
                 .with(1, (callbackData) -> {
                     long userSize = userService.size();

@@ -1,4 +1,4 @@
-package org.Roclh.handlers.commands.common;
+package org.Roclh.handlers.commands.support;
 
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.TelegramUserService;

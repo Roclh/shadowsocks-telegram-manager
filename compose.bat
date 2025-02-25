@@ -14,7 +14,7 @@ exit /b %ERRORLEVEL%
     :: Шаг 1: Остановка контейнеров
     set "STEP_NAME=Docker compose down"
     echo [STEP] Decomposing existing docker container
-    docker-compose down
+    docker-compose -f "%CD%\src\main\docker\docker-compose.yml" down
 
     :: Шаг 2: Сборка проекта Maven
     set "STEP_NAME=Maven build"

@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CallbackStackUtils {
@@ -103,7 +104,8 @@ public class CallbackStackUtils {
         TelegramBot.waitSyncUpdate(callbackData.getMessageData().getTelegramId(), (commandData) -> {
             if (PasswordUtils.validate(commandData.getCommand())) {
                 callbackData.setCallbackData(callbackData.getCallbackData() + " " + commandData.getCommand());
-                return MessageUtils.sendMessage(callbackData.getMessageData()).text(((SendMessage) handler.apply(CommandData.from(callbackData))).getText())
+                return MessageUtils.sendMessage(callbackData.getMessageData())
+                        .text(((SendMessage) handler.apply(CommandData.from(callbackData))).getText())
                         .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                         .build();
             }
@@ -115,6 +117,23 @@ public class CallbackStackUtils {
         return MessageUtils.editMessage(callbackData.getMessageData())
                 .text(i18N.get("callback.user.user.write.new.password"))
                 .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), InlineUtils.trimLastWord(callbackData.getCallbackData())))
+                .build();
+    }
+
+    public static PartialBotApiMethod<? extends Serializable> getDefaultSelectPluginMessage(CallbackData callbackData) {
+        return getDefaultSelectPluginMessage(callbackData, () -> InlineUtils.trimLastWord(callbackData.getCallbackData()));
+    }
+
+    public static PartialBotApiMethod<? extends Serializable> getDefaultSelectPluginMessage(CallbackData callbackData, Supplier<String> redoCallbackSupplier) {
+        I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
+        return MessageUtils.editMessage(callbackData.getMessageData())
+                .text(i18N.get("util.callback.select.plugin"))
+                .replyMarkup(InlineUtils.getListNavigationMarkup(Arrays.stream(UserModel.Plugin.values())
+                                .collect(Collectors.toMap(UserModel.Plugin::name, UserModel.Plugin::name)),
+                        (data) -> callbackData.getCallbackData() + " " + data,
+                        callbackData.getMessageData().getLocale(),
+                        redoCallbackSupplier
+                ))
                 .build();
     }
 }

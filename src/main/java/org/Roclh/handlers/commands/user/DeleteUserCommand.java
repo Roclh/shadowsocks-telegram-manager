@@ -9,6 +9,7 @@ import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.sh.scripts.DisableShadowsocksServerScript;
+import org.Roclh.sh.scripts.ScreenListScript;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
 import org.Roclh.utils.callback.CallbackStack;
@@ -17,18 +18,19 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Slf4j
 public class DeleteUserCommand extends AbstractCommand<SendMessage> implements WithCallbackStack {
     private final UserService userService;
     private final DisableShadowsocksServerScript disableScript;
+    private final ScreenListScript screenListScript;
 
-    public DeleteUserCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, UserService userService, DisableShadowsocksServerScript disableScript) {
+    public DeleteUserCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, UserService userService, DisableShadowsocksServerScript disableScript, ScreenListScript screenListScript) {
         super(telegramUserService, commandRegistry);
         this.userService = userService;
         this.disableScript = disableScript;
+        this.screenListScript = screenListScript;
     }
 
     @Override
@@ -43,11 +45,14 @@ public class DeleteUserCommand extends AbstractCommand<SendMessage> implements W
         long chatId = messageData.getChatId();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        if (!userService.getUser(id).map(disableScript::execute).orElse(false)) {
+        if (screenListScript.execute().stream()
+                .map(line -> Long.valueOf(line.split(":")[1]))
+                .anyMatch(id::equals) && !userService.getUser(id).map(disableScript::execute).orElse(false)) {
             log.error("Failed to delete user with id {}, failed to stop screen", id);
             sendMessage.setText("Failed to delete user with id " + id + ", failed to stop screen");
             return sendMessage;
         }
+
         if (!userService.deleteUser(id)) {
             log.error("Failed to delete user with identifier {}", id);
             sendMessage.setText("Failed to delete user with identifier " + id);
@@ -74,10 +79,11 @@ public class DeleteUserCommand extends AbstractCommand<SendMessage> implements W
     public CallbackStack getCallbackStack() {
         return CallbackStack.of("user")
                 .forCommand("del", i18N.get("callback.user.user.inline.button.delete.user"))
+                .withCommandDisplayCondition((telegramId) -> !userService.getAllUsers().isEmpty())
                 .with(1, (callbackData) ->
-                        CallbackStackUtils.getDefaultSelectTelegramUserIdMessage(callbackData,
+                        CallbackStackUtils.getDefaultSelectUserIdMessage(callbackData,
                                 i18N.get("callback.user.user.select.user.delete"),
-                                telegramUserService,
+                                userService,
                                 (user) -> true)
                 )
                 .with(2, (callbackData) ->

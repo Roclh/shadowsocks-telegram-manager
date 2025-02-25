@@ -100,7 +100,7 @@ public class GetLinkCommand extends AbstractCommand<PartialBotApiMethod<? extend
     public CallbackStack getCallbackStack() {
         return CallbackStack.of("access")
                 .forCommand("qr", i18N.get("callback.common.getqr.inline.button"))
-                .withSelectCommandText("Что вы хотите сделать?")
+                .withSelectCommandText(i18N.get("command.access.select.command"))
                 .withLocalizedCallbackKey(KEY + i18N.get("callback.access.inline.button.access"))
                 .with(1, (callbackData) -> {
                     PartialBotApiMethod<?> result = handle(CommandData.from(callbackData));

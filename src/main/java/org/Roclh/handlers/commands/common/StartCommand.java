@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -83,7 +84,8 @@ public class StartCommand extends AbstractCommand<SendMessage> implements WithCa
         keyboardMarkup.setKeyboard(commandRegistry.getMergedRegisteredCallbacks(messageData.getTelegramId(), messageData.getLocale())
                 .stream()
                 .filter(callbackStack -> !callbackStack.isUtil())
-                .map(CallbackStack::getCallbackStackButton)
+                .map(callbackStack -> callbackStack.getCallbackStackButton(messageData.getTelegramId()))
+                .filter(Objects::nonNull)
                 .toList());
         return keyboardMarkup;
     }

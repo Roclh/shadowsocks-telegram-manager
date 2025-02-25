@@ -5,8 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.Roclh.bot.TelegramBotProperties;
 import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
+import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.repositories.TelegramUserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -67,6 +70,15 @@ public class TelegramUserService {
 
     public List<TelegramUserModel> getUsers() {
         return telegramUserRepository.findAll();
+    }
+
+    public List<TelegramUserModel> getUsers(int pageSize, int pageNumber){
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return telegramUserRepository.findAll(pageable).toList();
+    }
+
+    public long size(){
+        return telegramUserRepository.findAll().size();
     }
 
     public boolean exists(Long telegramId) {

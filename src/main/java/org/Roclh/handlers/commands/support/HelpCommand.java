@@ -1,4 +1,4 @@
-package org.Roclh.handlers.commands.common;
+package org.Roclh.handlers.commands.support;
 
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.Role;
@@ -78,7 +78,8 @@ public class HelpCommand extends AbstractCommand<SendMessage> implements WithCal
         keyboardMarkup.setKeyboard(commandRegistry.getMergedRegisteredCallbacks(messageData.getTelegramId(), messageData.getLocale())
                 .stream()
                 .filter(callbackStack -> !callbackStack.isUtil())
-                .map(CallbackStack::getCallbackStackButton)
+                .map(callbackStack -> callbackStack.getCallbackStackButton(messageData.getTelegramId()))
+                .filter(Objects::nonNull)
                 .toList());
         return keyboardMarkup;
     }

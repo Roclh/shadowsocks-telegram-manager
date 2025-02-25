@@ -108,8 +108,9 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
 
     @Override
     public CallbackStack getCallbackStack() {
-        return telegramUserService.getUsers(user -> !userService.isAddedUser(user)).isEmpty() ? null : CallbackStack.of("user")
+        return  CallbackStack.of("user")
                 .forCommand("addnopwd", i18N.get("callback.user.user.inline.button.add.with.gen.password"))
+                .withCommandDisplayCondition((telegramId) -> telegramUserService.getUsers(user -> !userService.isAddedUser(user)).isEmpty())
                 .with(1, (callbackData) ->
                         CallbackStackUtils.getDefaultSelectTelegramUserIdMessage(
                                 callbackData,

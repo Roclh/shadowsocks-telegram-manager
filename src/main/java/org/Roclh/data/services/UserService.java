@@ -8,6 +8,7 @@ import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.repositories.UserRepository;
 import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
+import org.Roclh.sh.scripts.EnableV2RayShadowsocksServerScript;
 import org.Roclh.ss.ShadowsocksProperties;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -27,11 +28,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final ShadowsocksProperties shadowsocksProperties;
     private final EnableDefaultShadowsocksServerScript enableScript;
+    private final EnableV2RayShadowsocksServerScript enableV2RayScript;
 
     @EventListener(ContextRefreshedEvent.class)
     @Order(10)
     public void init() {
-        getActiveUsers().forEach(enableScript::execute);
+        getActiveUsers().forEach(user -> {
+            switch (user.getPlugin()){
+                case DEFAULT -> enableScript.execute(user);
+                case V2RAY -> enableV2RayScript.execute(user);
+            }
+        });
     }
 
     public boolean saveUser(@NonNull UserModel userModel) {
@@ -94,6 +101,10 @@ public class UserService {
 
     public boolean isAddedUser(TelegramUserModel telegramUser){
         return userRepository.findByUserModel(telegramUser) != null;
+    }
+
+    public boolean isAddedUser(Long telegramId){
+        return userRepository.findByUserModel_TelegramId(telegramId).isPresent();
     }
 
     public boolean isPortInUse(Long port) {

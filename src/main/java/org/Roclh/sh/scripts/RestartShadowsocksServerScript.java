@@ -8,11 +8,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class RestartShadowsocksServerScript extends AbstractShScript<Boolean> {
     private final EnableDefaultShadowsocksServerScript enableScript;
+    private final EnableV2RayShadowsocksServerScript enableV2RayScript;
     private final DisableShadowsocksServerScript disableScript;
 
-    protected RestartShadowsocksServerScript(EnableDefaultShadowsocksServerScript enableScript, DisableShadowsocksServerScript disableScript) {
+    protected RestartShadowsocksServerScript(EnableDefaultShadowsocksServerScript enableScript,
+                                             EnableV2RayShadowsocksServerScript enableV2RayScript,
+                                             DisableShadowsocksServerScript disableScript) {
         super(null, null);
         this.enableScript = enableScript;
+        this.enableV2RayScript = enableV2RayScript;
         this.disableScript = disableScript;
     }
 
@@ -21,7 +25,11 @@ public class RestartShadowsocksServerScript extends AbstractShScript<Boolean> {
         return disableScript.execute(args[0], args[1]) && enableScript.execute(args[0], args[1], args[2]);
     }
 
-    public Boolean execute(UserModel userModel){
-        return disableScript.execute(userModel) && enableScript.execute(userModel);
+    public Boolean execute(UserModel userModel, boolean soft){
+        return (disableScript.execute(userModel) || soft) &&
+                switch (userModel.getPlugin()) {
+                    case DEFAULT -> enableScript.execute(userModel);
+                    case V2RAY -> enableV2RayScript.execute(userModel);
+                };
     }
 }

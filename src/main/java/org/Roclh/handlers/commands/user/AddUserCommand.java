@@ -1,7 +1,6 @@
 package org.Roclh.handlers.commands.user;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.bot.TelegramBot;
 import org.Roclh.bot.TelegramBotStorage;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
@@ -16,14 +15,12 @@ import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
 import org.Roclh.ss.ShadowsocksProperties;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
-import org.Roclh.utils.PasswordUtils;
 import org.Roclh.utils.callback.CallbackStack;
 import org.Roclh.utils.callback.CallbackStackUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -32,12 +29,17 @@ public class AddUserCommand extends AbstractCommand<SendMessage> implements With
     private final TelegramUserService telegramUserService;
     private final TelegramBotStorage telegramBotStorage;
     private final ShadowsocksProperties shadowsocksProperties;
-    private final EnableDefaultShadowsocksServerScript enableScript;
+    private final EnableDefaultShadowsocksServerScript enableScript;;
 
-    public AddUserCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, UserService userService, TelegramUserService telegramUserService1, TelegramBotStorage telegramBotStorage, ShadowsocksProperties shadowsocksProperties, EnableDefaultShadowsocksServerScript enableScript) {
+    public AddUserCommand(TelegramUserService telegramUserService,
+                          CommandRegistry commandRegistry,
+                          UserService userService,
+                          TelegramBotStorage telegramBotStorage,
+                          ShadowsocksProperties shadowsocksProperties,
+                          EnableDefaultShadowsocksServerScript enableScript) {
         super(telegramUserService, commandRegistry);
+        this.telegramUserService = telegramUserService;
         this.userService = userService;
-        this.telegramUserService = telegramUserService1;
         this.telegramBotStorage = telegramBotStorage;
         this.shadowsocksProperties = shadowsocksProperties;
         this.enableScript = enableScript;
@@ -114,9 +116,9 @@ public class AddUserCommand extends AbstractCommand<SendMessage> implements With
 
     @Override
     public CallbackStack getCallbackStack() {
-        return telegramUserService.getUsers(user -> !userService.isAddedUser(user)).isEmpty() ? null : CallbackStack.of("user")
+        return CallbackStack.of("user")
                 .forCommand("add", i18N.get("callback.user.user.inline.button.add.with.defined.password"))
-                .withLocalizedCallbackKey(i18N.get("callback.user.user.inline.button.manage.users"))
+                .withCommandDisplayCondition((telegramId) -> telegramUserService.getUsers(user -> !userService.isAddedUser(user)).isEmpty())
                 .with(1, (callbackData) ->
                         CallbackStackUtils.getDefaultSelectTelegramUserIdMessage(
                                 callbackData,
