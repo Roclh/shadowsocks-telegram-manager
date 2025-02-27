@@ -17,6 +17,7 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 import java.util.Objects;
 
 @Getter
@@ -75,7 +76,16 @@ public class UserModel {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
+    @Getter
     public enum Plugin {
-        DEFAULT, V2RAY
+        DEFAULT("", Map.of()), V2RAY("v2ray-plugin", Map.of("host", "poh.isgood.host"));
+
+        Plugin(String pluginLinkPostfix, Map<String, String> pluginOpts){
+            this.pluginLinkPostfix = pluginLinkPostfix;
+            this.pluginOpts = pluginOpts;
+        }
+
+        private final String pluginLinkPostfix;
+        private final Map<String, String> pluginOpts;
     }
 }

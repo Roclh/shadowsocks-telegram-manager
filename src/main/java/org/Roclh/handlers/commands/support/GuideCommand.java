@@ -1,6 +1,7 @@
 package org.Roclh.handlers.commands.support;
 
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.data.OSType;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.WithCallbackStack;
@@ -32,9 +33,9 @@ public class GuideCommand extends AbstractCommand<SendMessage> implements WithCa
                     .text(i18N.get("common.validation.not.enough.argument", 2))
                     .build();
         }
-        Type guideType;
+        OSType guideType;
         try {
-            guideType = Type.valueOf(words[1]);
+            guideType = OSType.valueOf(words[1]);
         }catch (IllegalArgumentException e){
             return MessageUtils.sendMessage(commandData.getMessageData())
                     .text("Failed to execute command - unkown guide type " + words[1])
@@ -70,8 +71,8 @@ public class GuideCommand extends AbstractCommand<SendMessage> implements WithCa
                 .with(1, (callbackData) ->
                     MessageUtils.editMessage(callbackData.getMessageData())
                             .text(i18N.get("callback.common.guide.select.paltform"))
-                            .replyMarkup(InlineUtils.getListNavigationMarkup(Arrays.stream(Type.values())
-                                            .collect(Collectors.toMap(c -> c.localize(I18N.from(callbackData.getMessageData())), Type::name)),
+                            .replyMarkup(InlineUtils.getListNavigationMarkup(Arrays.stream(OSType.values())
+                                            .collect(Collectors.toMap(c -> c.localize(I18N.from(callbackData.getMessageData())), OSType::name)),
                                     data -> callbackData.getCallbackData() + " " + data,
                                     callbackData.getMessageData().getLocale()))
                             .build()
@@ -84,17 +85,4 @@ public class GuideCommand extends AbstractCommand<SendMessage> implements WithCa
                 .build();
     }
 
-    public enum Type{
-        PC("command.common.guide.pc.alias"), IOS("command.common.guide.ios.alias"), ANDROID("command.common.guide.android.alias");
-
-        private final String localized;
-
-        public String localize(I18N i18N){
-            return i18N.get(localized);
-        }
-
-        Type(String localized) {
-            this.localized = localized;
-        }
-    }
 }

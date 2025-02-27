@@ -96,6 +96,7 @@ public class AddUserCommand extends AbstractCommand<SendMessage> implements With
         if (userModel.getUserModel().getChatId() != null) {
             telegramBotStorage.getTelegramBot().sendMessage(
                     MessageUtils.sendMessage(commandData.getMessageData())
+                            .chatId(userModel.getUserModel().getChatId())
                             .text(i18N.get("command.common.adduserwithoutpassword.granted.access"))
                             .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.common.getqr.inline.button"), "qr"))
                             .build());
@@ -118,7 +119,7 @@ public class AddUserCommand extends AbstractCommand<SendMessage> implements With
     public CallbackStack getCallbackStack() {
         return CallbackStack.of("user")
                 .forCommand("add", i18N.get("callback.user.user.inline.button.add.with.defined.password"))
-                .withCommandDisplayCondition((telegramId) -> telegramUserService.getUsers(user -> !userService.isAddedUser(user)).isEmpty())
+                .withCommandDisplayCondition((telegramId) -> !telegramUserService.getUsers(user -> !userService.isAddedUser(user)).isEmpty())
                 .with(1, (callbackData) ->
                         CallbackStackUtils.getDefaultSelectTelegramUserIdMessage(
                                 callbackData,
@@ -130,8 +131,9 @@ public class AddUserCommand extends AbstractCommand<SendMessage> implements With
                         CallbackStackUtils.getDefaultSelectPortMessage(callbackData, i18N.get("callback.user.user.select.port"), userService))
                 .with(3, (callbackData) ->
                         CallbackStackUtils.getDefaultWaitForPasswordInput(callbackData,
-                                this::handle)
+                                getCallbackStack())
                 )
+                .with(4, (callbackData) -> handle(CommandData.from(callbackData)))
                 .build();
     }
 }

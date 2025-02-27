@@ -88,6 +88,7 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
         }
         if (userModel.getUserModel().getChatId() != null) {
             telegramBotStorage.getTelegramBot().sendMessage(MessageUtils.sendMessage(commandData.getMessageData())
+                    .chatId(userModel.getUserModel().getChatId())
                     .text(i18N.get("command.common.adduserwithoutpassword.granted.access"))
                     .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.common.getqr.inline.button"), "qr"))
                     .build());
@@ -110,7 +111,7 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
     public CallbackStack getCallbackStack() {
         return  CallbackStack.of("user")
                 .forCommand("addnopwd", i18N.get("callback.user.user.inline.button.add.with.gen.password"))
-                .withCommandDisplayCondition((telegramId) -> telegramUserService.getUsers(user -> !userService.isAddedUser(user)).isEmpty())
+                .withCommandDisplayCondition((telegramId) -> !telegramUserService.getUsers(user -> !userService.isAddedUser(user)).isEmpty())
                 .with(1, (callbackData) ->
                         CallbackStackUtils.getDefaultSelectTelegramUserIdMessage(
                                 callbackData,

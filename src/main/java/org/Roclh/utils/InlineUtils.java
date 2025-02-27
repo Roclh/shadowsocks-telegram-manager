@@ -76,7 +76,7 @@ public class InlineUtils {
             inlineKeyboardButtons.add(navigationRows);
         }
         List<InlineKeyboardButton> backRow = getDefaultRedoLastChangeCommandRow(
-                I18N.from(callbackData.getMessageData().getLocale()).get("callback.default.navigation.data.back"),
+                EmojiConstants.HOUSE + I18N.from(callbackData.getMessageData().getLocale()).get("callback.default.navigation.data.back"),
                 redoCallbackSupplier);
         if (backRow != null) {
             inlineKeyboardButtons.add(backRow);
@@ -108,7 +108,7 @@ public class InlineUtils {
                     .build();
             inlineKeyboardButtons.add(List.of(inlineKeyboardButton));
         }
-        List<InlineKeyboardButton> lastRow = getDefaultRedoLastChangeCommandRow(I18N.from(locale)
+        List<InlineKeyboardButton> lastRow = getDefaultRedoLastChangeCommandRow(EmojiConstants.HOUSE + I18N.from(locale)
                 .get("callback.default.navigation.data.back"), redoCallbackSupplier);
         if (lastRow != null) {
             inlineKeyboardButtons.add(lastRow);
@@ -161,8 +161,8 @@ public class InlineUtils {
 
     public static InlineKeyboardMarkup getNavigationToPreviousCommand(@NonNull CallbackData callbackData) {
         I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
-        return getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"),
-                callbackData.getCallbackData().substring(0, callbackData.getCallbackData().lastIndexOf(" ")));
+        return getDefaultNavigationMarkup(EmojiConstants.HOUSE + i18N.get("callback.default.navigation.data.back"),
+                trimLastWord(callbackData.getCallbackData()));
     }
 
     /**

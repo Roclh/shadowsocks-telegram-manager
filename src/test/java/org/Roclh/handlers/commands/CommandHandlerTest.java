@@ -1,4 +1,4 @@
-package org.Roclh.commands;
+package org.Roclh.handlers.commands;
 
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.messaging.CommandData;

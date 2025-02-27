@@ -1,9 +1,8 @@
-package org.Roclh.commands.access;
+package org.Roclh.handlers.commands.access;
 
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.UserService;
-import org.Roclh.handlers.commands.access.SetPluginCommand;
 import org.Roclh.handlers.messaging.CallbackData;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
@@ -190,8 +189,8 @@ public class SetPluginCommandTest extends UserTestBase {
         Assertions.assertEquals(
                 I18N.from(rootMessageData.getLocale()).get(
                         "command.access.setplugin.success",
-                        uMocks.u1().getUserModel().getTelegramId(),
-                        UserModel.Plugin.V2RAY),
+                        UserModel.Plugin.V2RAY,
+                        uMocks.u1().getUserModel().getTelegramId()),
                 result.getText()
         );
         Assertions.assertAll(
@@ -212,6 +211,8 @@ public class SetPluginCommandTest extends UserTestBase {
                 .messageData(u1MessageData)
                 .build()
         );
+        log.info("Current user 1: {}", userService.getUser(tgMocks.tgu1().getTelegramId()));
+        log.info("Select callback result: {}", selectCallbackResult);
         String selectCommandPressButtonCallback = selectCallbackResult.getReplyMarkup()
                 .getKeyboard()
                 .stream()

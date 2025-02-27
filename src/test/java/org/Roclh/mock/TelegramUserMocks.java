@@ -69,4 +69,13 @@ public class TelegramUserMocks {
                 .telegramName("Test6")
                 .build();
     }
+
+    public TelegramUserModel tgNewU(){
+        return TelegramUserModel.builder()
+                .chatId(7L)
+                .telegramId(7L)
+                .role(Role.GUEST)
+                .telegramName("TestNew7")
+                .build();
+    }
 }

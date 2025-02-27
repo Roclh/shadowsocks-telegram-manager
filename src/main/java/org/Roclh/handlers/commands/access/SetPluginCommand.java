@@ -93,7 +93,7 @@ public class SetPluginCommand extends AbstractCommand<SendMessage> implements Wi
     @Override
     public boolean isAllowed(Long userId) {
         return telegramUserService.isAllowed(userId, Role.USER) &&
-                (telegramUserService.isAllowed(userId, Role.MANAGER) || userService.isAddedUser(userId));
+                (telegramUserService.isAllowed(userId, Role.MANAGER) || userService.isEnabledUser(userId));
     }
 
     @Override
@@ -106,6 +106,7 @@ public class SetPluginCommand extends AbstractCommand<SendMessage> implements Wi
         return CallbackStack.of("access")
                 .forCommand("splug", i18N.get("command.access.setplugin.inline.button"))
                 .withSelectCommandText(i18N.get("command.access.select.command"))
+                .withCommandDisplayCondition(telegramId -> userService.isEnabledUser(telegramId) || telegramUserService.isAllowed(telegramId, Role.MANAGER))
                 .with(1, (callbackData) ->
                         telegramUserService.isAllowed(callbackData.getMessageData().getTelegramId(), Role.MANAGER) ?
                                 CallbackStackUtils.getDefaultSelectUserIdMessage(

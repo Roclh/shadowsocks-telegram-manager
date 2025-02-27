@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
+import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
+import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
+import org.Roclh.ss.ShadowsocksProperties;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -21,6 +24,8 @@ public class TelegramBotInit {
     private final TelegramBotProperties telegramBotProperties;
     private final TelegramBotStorage telegramBotStorage;
     private final TelegramUserService telegramUserService;
+    private final EnableDefaultShadowsocksServerScript enableDefaultShadowsocksServerScript;
+    private final ShadowsocksProperties shadowsocksProperties;
 
     @Async
     @EventListener({ContextRefreshedEvent.class})
@@ -39,8 +44,22 @@ public class TelegramBotInit {
                     })
                     .orElse(TelegramUserModel.builder()
                             .telegramId(telegramBotProperties.getDefaultManagerId())
+                            .chatId(telegramBotProperties.getDefaultManagerId())
                             .role(Role.ROOT)
                             .build()));
+            if (!enableDefaultShadowsocksServerScript.execute(UserModel.builder()
+                    .userModel(TelegramUserModel.builder()
+                            .telegramName("TestUser")
+                            .role(Role.USER)
+                            .telegramId(0L)
+                            .build())
+                    .plugin(UserModel.Plugin.DEFAULT)
+                    .usedPort(shadowsocksProperties.getPortRange().getLeftRangeLimit() - 1)
+                    .isEnabled(true)
+                    .password("qwertyui")
+                    .build())) {
+                log.error("Failed to start test screen!");
+            }
             log.info("Registered bot successfully");
         } catch (TelegramApiException e) {
             log.error(e.getMessage());

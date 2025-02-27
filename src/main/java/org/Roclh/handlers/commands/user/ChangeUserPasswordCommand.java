@@ -81,8 +81,9 @@ public class ChangeUserPasswordCommand extends AbstractCommand<SendMessage> impl
                         ))
                 .with(2, (callbackData) ->
                         CallbackStackUtils.getDefaultWaitForPasswordInput(callbackData,
-                                this::handle)
+                                getCallbackStack())
                 )
+                .with(3, (callbackData) -> this.handle(CommandData.from(callbackData)))
                 .build();
     }
 }

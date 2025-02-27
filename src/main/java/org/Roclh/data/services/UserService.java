@@ -16,6 +16,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,9 +42,10 @@ public class UserService {
         });
     }
 
+    @Transactional
     public boolean saveUser(@NonNull UserModel userModel) {
         try {
-            userRepository.saveAndFlush(getUser(userModel.getUserModel().getId()).map(user -> {
+            userRepository.saveAndFlush(getUser(userModel.getUserModel().getTelegramId()).map(user -> {
                         user.getUserModel().setRole(userModel.getUserModel().getRole());
                         user.getUserModel().setTelegramId(userModel.getUserModel().getTelegramId());
                         user.getUserModel().setTelegramName(userModel.getUserModel().getTelegramName());
@@ -124,5 +126,9 @@ public class UserService {
      */
     public void clear(){
         userRepository.deleteAll();
+    }
+
+    public boolean isEnabledUser(Long telegramId) {
+        return userRepository.findByUserModel_TelegramId(telegramId).map(UserModel::isEnabled).orElse(false);
     }
 }

@@ -87,8 +87,8 @@ public class HelpCommand extends AbstractCommand<SendMessage> implements WithCal
     @Override
     public CallbackStack getCallbackStack() {
         return CallbackStack.of("support")
-                .forCommand("help", "Список команд")
-                .withSelectCommandText("Чем я могу вам помочь?")
+                .forCommand("help", EmojiConstants.BOOK + " " + i18N.get("command.support.commands.list.inline.button"))
+                .withSelectCommandText(i18N.get("command.support.select.command.text"))
                 .withLocalizedCallbackKey(EmojiConstants.QUESTIONMARK + i18N.get("callback.common.help.inline.button"))
                 .with(1, (callbackData) ->
                         MessageUtils.editMessage(callbackData.getMessageData())

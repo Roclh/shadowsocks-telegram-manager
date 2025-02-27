@@ -50,8 +50,8 @@ public class RestartAllUsersCommand extends AbstractCommand<SendMessage> impleme
     }
 
     public List<String> restartAllUsers() {
-        return userService.getAllUsers().stream()
-                .filter(UserModel::isEnabled)
+        return userService.getActiveUsers()
+                .stream()
                 .map((user) -> user.getUserModel().getTelegramName() +
                         (restartShadowsocksServerScript.execute(user, false) ? " successful restarted" : " failed restart"))
                 .collect(Collectors.toList());

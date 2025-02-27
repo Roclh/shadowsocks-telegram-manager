@@ -13,10 +13,9 @@ import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
 import org.Roclh.utils.callback.CallbackStack;
 import org.Roclh.utils.callback.CallbackStackUtils;
+import org.Roclh.utils.i18n.EmojiConstants;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.List;
 
@@ -100,7 +99,7 @@ public class SetRoleCommand extends AbstractCommand<SendMessage> implements With
     @Override
     public CallbackStack getCallbackStack() {
         return CallbackStack.of("tguser")
-                .forCommand("role", i18N.get("callback.user.telegramuser.inline.button.set.role"))
+                .forCommand("role", EmojiConstants.STAR + " " + i18N.get("callback.user.telegramuser.inline.button.set.role"))
                 .with(1, (callbackData) ->
                         CallbackStackUtils.getDefaultSelectTelegramUserIdMessage(callbackData,
                                 i18N.get("callback.user.telegramuser.select.telegram.user.setrole"),

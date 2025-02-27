@@ -44,12 +44,16 @@ public class StartCommand extends AbstractCommand<SendMessage> implements WithCa
                             messageData.getTelegramName(),
                             userService.getUser(messageData.getTelegramId()).map(UserModel::isEnabled).orElse(false) ?
                                     i18N.get("command.common.start.server.state.enabled") :
-                                    i18N.get("command.common.start.server.state.disabled")) :
+                                    i18N.get("command.common.start.server.state.disabled"),
+                            userService.getUser(messageData.getTelegramId()).map(UserModel::getPlugin).orElse(UserModel.Plugin.DEFAULT)
+                    ) :
                     i18N.get("command.common.start.select.command.user",
                             messageData.getTelegramName(),
                             userService.getUser(messageData.getTelegramId()).map(UserModel::isEnabled).orElse(false) ?
                                     i18N.get("command.common.start.server.state.enabled") :
-                                    i18N.get("command.common.start.server.state.disabled"))
+                                    i18N.get("command.common.start.server.state.disabled"),
+                            userService.getUser(messageData.getTelegramId()).map(UserModel::getPlugin).orElse(UserModel.Plugin.DEFAULT)
+                            )
             );
             sendMessage.replyMarkup(getInlineKeyboardButtons(commandData.getMessageData()));
         } else {

@@ -1,5 +1,6 @@
 package org.Roclh.utils.callback;
 
+import lombok.extern.slf4j.Slf4j;
 import org.Roclh.bot.TelegramBot;
 import org.Roclh.data.Role;
 import org.Roclh.data.entities.TelegramUserModel;
@@ -7,7 +8,6 @@ import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.messaging.CallbackData;
-import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
@@ -20,11 +20,11 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageTe
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class CallbackStackUtils {
 
     public static EditMessageText getDefaultSelectPortMessage(CallbackData callbackData, String portMessage, UserService userService) {
@@ -99,13 +99,27 @@ public class CallbackStackUtils {
                 .build();
     }
 
-    public static PartialBotApiMethod<? extends Serializable> getDefaultWaitForPasswordInput(CallbackData callbackData, Function<CommandData, PartialBotApiMethod<? extends Serializable>> handler) {
+    public static PartialBotApiMethod<? extends Serializable> getDefaultWaitForPasswordInput(CallbackData callbackData, CallbackStack callbackStack) {
         I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
         TelegramBot.waitSyncUpdate(callbackData.getMessageData().getTelegramId(), (commandData) -> {
             if (PasswordUtils.validate(commandData.getCommand())) {
                 callbackData.setCallbackData(callbackData.getCallbackData() + " " + commandData.getCommand());
+                PartialBotApiMethod<? extends Serializable> result = callbackStack.handle(callbackData);
+                if(result instanceof SendMessage){
+                    return MessageUtils.sendMessage(callbackData.getMessageData())
+                            .text(((SendMessage) result).getText())
+                            .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                            .build();
+                }
+                if(result instanceof EditMessageText){
+                    return MessageUtils.sendMessage(callbackData.getMessageData())
+                            .text(((EditMessageText) result).getText())
+                            .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                            .build();
+                }
+                log.error("Failed to parse password - unexpected callback result");
                 return MessageUtils.sendMessage(callbackData.getMessageData())
-                        .text(((SendMessage) handler.apply(CommandData.from(callbackData))).getText())
+                        .text("Error occurred while handling callback, contact support!")
                         .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
                         .build();
             }
@@ -124,7 +138,7 @@ public class CallbackStackUtils {
         return getDefaultSelectPluginMessage(callbackData, () -> InlineUtils.trimLastWord(callbackData.getCallbackData()));
     }
 
-    public static PartialBotApiMethod<? extends Serializable> getDefaultSelectPluginMessage(CallbackData callbackData, Supplier<String> redoCallbackSupplier) {
+    public static EditMessageText getDefaultSelectPluginMessage(CallbackData callbackData, Supplier<String> redoCallbackSupplier) {
         I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
         return MessageUtils.editMessage(callbackData.getMessageData())
                 .text(i18N.get("util.callback.select.plugin"))

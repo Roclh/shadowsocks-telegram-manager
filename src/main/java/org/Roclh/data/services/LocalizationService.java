@@ -28,6 +28,10 @@ public class LocalizationService {
         }
     }
 
+    public boolean exists(@NonNull Long telegramId){
+        return localizationRepository.existsById(telegramId);
+    }
+
     public boolean setLocale(@NonNull Long telegramId, String locale) {
         if (localizationRepository.existsById(telegramId)) {
             return localizationRepository.updateLocaleByTelegramId(locale, telegramId) > 0;

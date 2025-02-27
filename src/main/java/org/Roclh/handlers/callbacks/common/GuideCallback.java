@@ -2,9 +2,9 @@ package org.Roclh.handlers.callbacks.common;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.data.OSType;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.callbacks.AbstractCallback;
-import org.Roclh.handlers.commands.support.GuideCommand;
 import org.Roclh.handlers.messaging.CallbackData;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.utils.InlineUtils;
@@ -48,8 +48,8 @@ public class GuideCallback extends AbstractCallback<PartialBotApiMethod<? extend
     }
 
     private InlineKeyboardMarkup getSelectGuideTypeMarkup(CallbackData callbackData) {
-        return InlineUtils.getListNavigationMarkup(Arrays.stream(GuideCommand.Type.values())
-                        .collect(Collectors.toMap(c -> c.localize(I18N.from(callbackData.getMessageData())), GuideCommand.Type::name)),
+        return InlineUtils.getListNavigationMarkup(Arrays.stream(OSType.values())
+                        .collect(Collectors.toMap(c -> c.localize(I18N.from(callbackData.getMessageData())), OSType::name)),
                 data -> callbackData.getCallbackData() + " " + data,
                 callbackData.getMessageData().getLocale());
     }

@@ -2,6 +2,7 @@ package org.Roclh.handlers.commands.sh;
 
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.services.TelegramUserService;
+import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.WithCallbackStack;
 import org.Roclh.handlers.messaging.CommandData;
@@ -21,15 +22,17 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ScreenListCommand extends AbstractCommand<SendMessage> implements WithCallbackStack {
     private final ScreenListScript screenListScript;
+    private final UserService userService;
 
-    public ScreenListCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, ScreenListScript screenListScript) {
+    public ScreenListCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, ScreenListScript screenListScript, UserService userService) {
         super(telegramUserService, commandRegistry);
         this.screenListScript = screenListScript;
+        this.userService = userService;
     }
 
     @Override
     public SendMessage handle(CommandData commandData) {
-        String message = screenListScript.execute()
+        List<String> activeScreens = new java.util.ArrayList<>(screenListScript.execute()
                 .stream().map(line -> telegramUserService.getUser(Long.valueOf(line.split(":")[1])).orElse(null))
                 .map((userModel) -> {
                     if (userModel == null) {
@@ -37,8 +40,24 @@ public class ScreenListCommand extends AbstractCommand<SendMessage> implements W
                     }
                     return userModel.getTelegramId() + ":" + userModel.getTelegramName();
                 })
-                .collect(Collectors.joining("\n"));
-        if(message.isEmpty()){
+                .toList());
+        String message = userService.getActiveUsers()
+                .stream()
+                .map(userModel -> {
+                    if (activeScreens.contains(userModel.getUserModel().getTelegramId() + ":" + userModel.getUserModel().getTelegramName())) {
+                        activeScreens.remove(userModel.getUserModel().getTelegramId() + ":" + userModel.getUserModel().getTelegramName());
+                        return userModel.getUserModel().getTelegramId() + ":" +
+                                userModel.getUserModel().getTelegramName() + "[isEnabled=" +
+                                userModel.isEnabled() + "]";
+                    }
+                    return "Inactive!: " + userModel.getUserModel().getTelegramId() + ":" +
+                            userModel.getUserModel().getTelegramName() + "[isEnabled=" +
+                            userModel.isEnabled() + "]";
+                }).collect(Collectors.joining("\n"));
+        if (!activeScreens.isEmpty()) {
+            message = "\nNot in database:\n" + String.join("\n", activeScreens);
+        }
+        if (message.isEmpty()) {
             return MessageUtils.sendMessage(commandData.getMessageData())
                     .text("There is no active screens now")
                     .build();
@@ -56,7 +75,8 @@ public class ScreenListCommand extends AbstractCommand<SendMessage> implements W
     @Override
     public CallbackStack getCallbackStack() {
         return CallbackStack.of("manager")
-                .forCommand("screen", EmojiConstants.CLIPBOARD + i18N.get("callback.manager.inline.button.screen.list"))
+                .forCommand("screen", EmojiConstants.CLIPBOARD + " " + i18N.get("callback.manager.inline.button.screen.list"))
+                .withCommandDisplayCondition((telegramId) -> !userService.getActiveUsers().isEmpty())
                 .withLocalizedCallbackKey(EmojiConstants.WRENCH + i18N.get("callback.manager.inline.button"))
                 .with(1, (callbackData) -> MessageUtils.editMessage(callbackData.getMessageData())
                         .text(handle(CommandData.from(callbackData)).getText())

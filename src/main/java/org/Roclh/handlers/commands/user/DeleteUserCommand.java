@@ -14,6 +14,7 @@ import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
 import org.Roclh.utils.callback.CallbackStack;
 import org.Roclh.utils.callback.CallbackStackUtils;
+import org.Roclh.utils.i18n.EmojiConstants;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -78,7 +79,7 @@ public class DeleteUserCommand extends AbstractCommand<SendMessage> implements W
     @Override
     public CallbackStack getCallbackStack() {
         return CallbackStack.of("user")
-                .forCommand("del", i18N.get("callback.user.user.inline.button.delete.user"))
+                .forCommand("del", EmojiConstants.NO_ENTRY_SIGN + " " + i18N.get("callback.user.user.inline.button.delete.user"))
                 .withCommandDisplayCondition((telegramId) -> !userService.getAllUsers().isEmpty())
                 .with(1, (callbackData) ->
                         CallbackStackUtils.getDefaultSelectUserIdMessage(callbackData,

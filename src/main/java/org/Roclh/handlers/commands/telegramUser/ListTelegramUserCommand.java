@@ -10,6 +10,7 @@ import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
 import org.Roclh.utils.callback.CallbackStack;
+import org.Roclh.utils.i18n.EmojiConstants;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -64,9 +65,9 @@ public class ListTelegramUserCommand extends AbstractCommand<SendMessage> implem
     @Override
     public CallbackStack getCallbackStack() {
         return CallbackStack.of("tguser")
-                .forCommand("listtg", i18N.get("callback.user.telegramuser.inline.button.list.of.telegram.users"))
+                .forCommand("listtg", EmojiConstants.CLIPBOARD + " " + i18N.get("callback.user.telegramuser.inline.button.list.of.telegram.users"))
                 .withSelectCommandText(i18N.get("callback.user.telegramuser.select.command"))
-                .withLocalizedCallbackKey(i18N.get("callback.user.telegramuser.callback.button"))
+                .withLocalizedCallbackKey(EmojiConstants.WRENCH + " " + i18N.get("callback.user.telegramuser.callback.button"))
                 .with(1, (callbackData) -> {
 
                             long userSize = telegramUserService.size();

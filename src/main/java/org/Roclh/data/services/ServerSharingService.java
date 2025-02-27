@@ -16,7 +16,10 @@ import org.springframework.stereotype.Service;
 import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -24,36 +27,32 @@ import java.util.Base64;
 public class ServerSharingService {
     private final ShadowsocksProperties shadowsocksProperties;
 
-    public String generateServerUrl(@NonNull UserModel userModel){
-        return generateServerUrl(userModel, null, null);
-    }
     @Nullable
-    public String generateServerUrl(@NonNull UserModel userModel, String plugins, String pluginsOpts) {
+    public String generateServerUrl(@NonNull UserModel userModel) {
         StringBuilder uriBuilder = new StringBuilder();
         uriBuilder.append("//").append(Base64.getEncoder().encodeToString((shadowsocksProperties.getDefaultMethod() + ":" + userModel.getPassword()).getBytes()));
         uriBuilder.append("@").append(shadowsocksProperties.getAddress()).append(":").append(userModel.getUsedPort());
         uriBuilder.append("/");
-        if (plugins != null && !plugins.isBlank()) {
-            uriBuilder.append("?plugin=").append(plugins);
-            if (pluginsOpts != null && !pluginsOpts.isBlank()) {
-                uriBuilder.append(pluginsOpts);
-            }
-        }
-        URI uri = null;
         try {
-            uri = new URI("ss", uriBuilder.toString(), userModel.getUserModel().getTelegramName() + ":" + userModel.getUserModel().getTelegramId());
+            uriBuilder = new StringBuilder(new URI("ss", uriBuilder.toString(), "").toString());
+            uriBuilder.deleteCharAt(uriBuilder.length() - 1);
         } catch (URISyntaxException e) {
             log.error("Failed to create URI string", e);
         }
-        return uri == null ? null : uri.toString();
-    }
-    public BufferedImage generateServerUrlQrCode(@NonNull UserModel userModel){
-        return generateServerUrlQrCode(userModel, null, null);
+        if (!userModel.getPlugin().equals(UserModel.Plugin.DEFAULT)) {
+            uriBuilder.append("?plugin=").append(userModel.getPlugin().getPluginLinkPostfix());
+            if (!userModel.getPlugin().getPluginOpts().isEmpty()) {
+                uriBuilder.append(userModel.getPlugin().getPluginOpts().entrySet().stream().map(entry ->
+                        URLEncoder.encode(";" + entry.getKey() + "=" + entry.getValue(), StandardCharsets.UTF_8)).collect(Collectors.joining("")));
+            }
+        }
+        uriBuilder.append("#").append(userModel.getUserModel().getTelegramName()).append(":").append(userModel.getUserModel().getTelegramId());
+        return uriBuilder.toString();
     }
 
     @Nullable
-    public BufferedImage generateServerUrlQrCode(@NonNull UserModel userModel, String plugins, String pluginsOpt){
-        String uri = generateServerUrl(userModel, plugins, pluginsOpt);
+    public BufferedImage generateServerUrlQrCode(@NonNull UserModel userModel){
+        String uri = generateServerUrl(userModel);
         if(uri == null){
             log.error("Generated URI is null!");
             return null;
