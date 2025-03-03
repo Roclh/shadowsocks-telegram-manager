@@ -1,6 +1,6 @@
 package org.Roclh.data.repositories;
 
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

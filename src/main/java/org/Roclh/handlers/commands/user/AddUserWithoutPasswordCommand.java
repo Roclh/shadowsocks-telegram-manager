@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.Roclh.bot.TelegramBotStorage;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.enums.Plugin;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
@@ -56,14 +57,14 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
 
         if (shadowsocksProperties.getPortRange().range().stream().filter(userService::isPortInUse).toList().contains(port)) {
             log.error("Failed to add user - port {} already in use!", port);
-            sendMessage.setText("Failed to add user - port " + port + " already in use!");
+            sendMessage.setText(i18N.get("command.user.addnopwd.validation.port.already.in.use", port));
             return sendMessage;
         }
 
         TelegramUserModel telegramUserModel = telegramUserService.getUser(telegramId).orElse(null);
         if (telegramUserModel == null) {
             log.error("Failed to add user - Telegram user with id {} does not exists!", telegramId);
-            sendMessage.setText("Failed to add user - Telegram user with id " + telegramId + " does not exists!");
+            sendMessage.setText(i18N.get("command.user.addnopwd.validation.user.dont.exist", telegramId));
             return sendMessage;
         }
         String password = PasswordUtils.md5(telegramUserModel.getTelegramName() + ":" + telegramUserModel.getTelegramId() + UUID.randomUUID())
@@ -73,17 +74,17 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
                 .password(password)
                 .usedPort(port)
                 .isEnabled(true)
-                .plugin(UserModel.Plugin.DEFAULT)
+                .plugin(Plugin.DEFAULT)
                 .build();
 
         if (!enableScript.execute(userModel)) {
             log.error("Failed to add user - failed to execute sh script for user with id {}", telegramId);
-            sendMessage.setText("Failed to add user - failed to execute sh script for user with id " + telegramId);
+            sendMessage.setText(i18N.get("command.user.addnopwd.validation.failed.execute.script", telegramId));
             return sendMessage;
         }
         if (!userService.saveUser(userModel)) {
             log.error("Failed to add user - failed to save user model with id {}", telegramId);
-            sendMessage.setText("Failed to add user - failed to save user model with id " + telegramId);
+            sendMessage.setText(i18N.get("command.user.addnopwd.validation.failed.to.save.user", telegramId));
             return sendMessage;
         }
         if (userModel.getUserModel().getChatId() != null) {
@@ -93,7 +94,7 @@ public class AddUserWithoutPasswordCommand extends AbstractCommand<SendMessage> 
                     .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.common.getqr.inline.button"), "qr"))
                     .build());
         }
-        sendMessage.setText("User with id " + telegramId + " added successfully!");
+        sendMessage.setText(i18N.get("command.user.addnopwd.success", telegramId));
         return sendMessage;
     }
 

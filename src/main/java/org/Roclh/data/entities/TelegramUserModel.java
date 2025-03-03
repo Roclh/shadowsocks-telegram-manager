@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Role;
 import org.springframework.lang.Nullable;
 
 @Getter

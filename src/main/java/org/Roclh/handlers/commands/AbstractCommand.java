@@ -3,7 +3,7 @@ package org.Roclh.handlers.commands;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.utils.i18n.I18N;

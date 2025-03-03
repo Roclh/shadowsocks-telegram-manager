@@ -1,4 +1,4 @@
-package org.Roclh.data;
+package org.Roclh.data.enums;
 
 import java.util.Arrays;
 

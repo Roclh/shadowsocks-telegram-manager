@@ -6,7 +6,6 @@ import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.WithCallbackStack;
 import org.Roclh.handlers.messaging.CommandData;
-import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.sh.scripts.DisableShadowsocksServerScript;
 import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
@@ -48,32 +47,29 @@ public class ChangeUserEnabledCommand extends AbstractCommand<SendMessage> imple
 
     @Override
     public SendMessage handle(CommandData commandData) {
-        MessageData messageData = commandData.getMessageData();
         String[] words = commandData.getCommand().split(" ");
         if (words.length < 2) {
             return MessageUtils.sendMessage(commandData.getMessageData()).text("Failed to execute command - not enough arguments").build();
         }
         String cmd = words[0];
         Long userId = Long.parseLong(words[1]);
-        long chatId = messageData.getChatId();
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(chatId));
+        SendMessage.SendMessageBuilder sendMessage = MessageUtils.sendMessage(commandData.getMessageData());
 
         UserModel userModel = userService.getUser(userId).orElse(null);
         if (userModel == null) {
-            sendMessage.setText("User does not exists");
-            return sendMessage;
+            sendMessage.text("User does not exists");
+            return sendMessage.build();
         }
 
         boolean isEnabled = enableCommands.contains(cmd);
         if (changeEnabled(userModel, isEnabled)) {
-            sendMessage.setText("User was " + (isEnabled ? "enabled" : "disabled"));
+            sendMessage.text("User was " + (isEnabled ? "enabled" : "disabled"));
             userModel.setEnabled(isEnabled);
             userService.saveUser(userModel);
         } else {
-            sendMessage.setText("User was not " + (isEnabled ? "enabled" : "disabled"));
+            sendMessage.text("User was not " + (isEnabled ? "enabled" : "disabled"));
         }
-        return sendMessage;
+        return sendMessage.build();
     }
 
     @Override

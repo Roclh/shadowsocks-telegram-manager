@@ -2,7 +2,6 @@ package org.Roclh.handlers.commands.common;
 
 import org.Roclh.bot.TelegramBotProperties;
 import org.Roclh.data.services.LocalizationService;
-import org.Roclh.handlers.commands.common.SelectLangCommand;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.mock.TelegramUserMocks;

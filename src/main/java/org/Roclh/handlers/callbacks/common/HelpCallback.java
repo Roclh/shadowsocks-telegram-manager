@@ -1,7 +1,7 @@
 package org.Roclh.handlers.callbacks.common;
 
 import lombok.RequiredArgsConstructor;
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.callbacks.AbstractCallback;

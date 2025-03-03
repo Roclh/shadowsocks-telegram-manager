@@ -2,7 +2,7 @@ package org.Roclh.handlers.commands.common;
 
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.bot.TelegramBotProperties;
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.services.LocalizationService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component

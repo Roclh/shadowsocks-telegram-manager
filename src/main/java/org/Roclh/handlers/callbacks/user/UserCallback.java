@@ -2,8 +2,8 @@ package org.Roclh.handlers.callbacks.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.data.Role;
-import org.Roclh.data.entities.BandwidthModel;
+import org.Roclh.data.enums.Bandwidth;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
@@ -118,8 +118,8 @@ public class UserCallback extends AbstractCallback<PartialBotApiMethod<? extends
     }
 
     private InlineKeyboardMarkup getSelectBandwidthMarkup(CallbackData callbackData) {
-        return InlineUtils.getListNavigationMarkup(Arrays.stream(BandwidthModel.Bandwidth.values())
-                        .collect(Collectors.toMap(BandwidthModel.Bandwidth::getBandwidth, BandwidthModel.Bandwidth::name)),
+        return InlineUtils.getListNavigationMarkup(Arrays.stream(Bandwidth.values())
+                        .collect(Collectors.toMap(Bandwidth::getBandwidth, Bandwidth::name)),
                 (data) -> callbackData.getCallbackData() + " " + data,
                 callbackData.getMessageData().getLocale(),
                 () -> trimLastWord(callbackData.getCallbackData())

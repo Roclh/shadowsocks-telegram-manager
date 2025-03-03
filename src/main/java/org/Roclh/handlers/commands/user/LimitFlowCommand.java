@@ -3,6 +3,7 @@ package org.Roclh.handlers.commands.user;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.entities.BandwidthModel;
 import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.enums.Bandwidth;
 import org.Roclh.data.services.BandwidthService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
@@ -45,9 +46,9 @@ public class LimitFlowCommand extends AbstractCommand<SendMessage> {
         sendMessage.setChatId(String.valueOf(chatId));
 
         Long telegramId = Long.valueOf(words[1]);
-        BandwidthModel.Bandwidth bandwidth;
+        Bandwidth bandwidth;
         try {
-            bandwidth = BandwidthModel.Bandwidth.valueOf(words[2].toUpperCase());
+            bandwidth = Bandwidth.valueOf(words[2].toUpperCase());
         } catch (IllegalArgumentException e) {
             log.error("Failed to set bandwidth rule - bandwidth type does not exists {}", words[2], e);
             sendMessage.setText("Failed to set bandwidth rule - bandwidth type does not exists " + words[2]);
@@ -81,7 +82,7 @@ public class LimitFlowCommand extends AbstractCommand<SendMessage> {
     @Override
     public String getHelp() {
         return String.join("|", getCommandNames().subList(0, 2)) + " {id} {bandwidth}\n -- delete user\n -- {id}: user telegram id" +
-                "\n -- {bandwidth}: bandwidth, one of " + Arrays.toString(BandwidthModel.Bandwidth.values());
+                "\n -- {bandwidth}: bandwidth, one of " + Arrays.toString(Bandwidth.values());
     }
 
     @Override

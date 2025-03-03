@@ -1,7 +1,8 @@
 package org.Roclh.handlers.commands.access;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Plugin;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.ServerSharingService;
@@ -57,8 +58,8 @@ public class GetTestLinkCommand extends AbstractCommand<PartialBotApiMethod<? ex
                         .role(Role.USER)
                         .telegramId(0L)
                         .build())
-                .plugin(UserModel.Plugin.DEFAULT)
-                .usedPort(shadowsocksProperties.getPortRange().getLeftRangeLimit() - 1)
+                .plugin(Plugin.DEFAULT)
+                .usedPort(shadowsocksProperties.getTestPort())
                 .isEnabled(true)
                 .password("qwertyui")
                 .build();
@@ -93,7 +94,7 @@ public class GetTestLinkCommand extends AbstractCommand<PartialBotApiMethod<? ex
         return CallbackStack.of("access")
                 .forCommand("testqr", EmojiConstants.BULB + " " + i18N.get("command.access.gettestlink.inline.button"))
                 .withLocalizedCallbackKey(KEY + " " + i18N.get("callback.access.inline.button.access"))
-                .withCommandDisplayCondition(id -> !userService.isEnabledUser(id))
+                .withCommandDisplayCondition(id -> !userService.isEnabledUser(id) || telegramUserService.isAllowed(id, Role.MANAGER))
                 .with(1, (callbackData) -> {
                     PartialBotApiMethod<?> result = handle(CommandData.from(callbackData));
                     if(result instanceof SendMessage){

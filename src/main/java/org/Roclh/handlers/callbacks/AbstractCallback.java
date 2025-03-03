@@ -1,6 +1,6 @@
 package org.Roclh.handlers.callbacks;
 
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Role;
 import org.Roclh.handlers.messaging.CallbackData;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.i18n.I18N;

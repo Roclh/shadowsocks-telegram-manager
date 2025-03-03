@@ -2,7 +2,7 @@ package org.Roclh.handlers.callbacks.common;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.data.OSType;
+import org.Roclh.data.enums.OSType;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.callbacks.AbstractCallback;
 import org.Roclh.handlers.messaging.CallbackData;

@@ -1,6 +1,6 @@
 package org.Roclh.mock;
 
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.springframework.stereotype.Component;
 

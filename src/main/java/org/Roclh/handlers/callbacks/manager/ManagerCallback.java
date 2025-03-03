@@ -2,33 +2,19 @@ package org.Roclh.handlers.callbacks.manager;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.bot.TelegramBot;
-import org.Roclh.bot.TelegramBotProperties;
-import org.Roclh.bot.TelegramBotStorage;
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.services.TelegramUserService;
-import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.callbacks.AbstractCallback;
-import org.Roclh.handlers.commands.manager.ExportCsvCommand;
 import org.Roclh.handlers.messaging.CallbackData;
-import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
 import org.Roclh.utils.i18n.EmojiConstants;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
-import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component

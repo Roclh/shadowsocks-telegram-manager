@@ -1,7 +1,7 @@
 package org.Roclh.handlers.commands.access;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.enums.Plugin;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.messaging.CallbackData;
 import org.Roclh.handlers.messaging.CommandData;
@@ -10,6 +10,7 @@ import org.Roclh.mock.ShScriptsMocks;
 import org.Roclh.mock.TelegramUserMocks;
 import org.Roclh.mock.UserMocks;
 import org.Roclh.testutil.UserTestBase;
+import org.Roclh.testutil.callback.CallbackTestUtil;
 import org.Roclh.utils.callback.CallbackStack;
 import org.Roclh.utils.i18n.I18N;
 import org.junit.jupiter.api.Assertions;
@@ -73,7 +74,7 @@ public class SetPluginCommandTest extends UserTestBase {
 
     @Test
     public void whenSetPluginToV2Ray_thenPluginIsChanged() {
-        String command = "splug " + uMocks.u1().getUserModel().getTelegramId() + " " + UserModel.Plugin.V2RAY;
+        String command = "splug " + uMocks.u1().getUserModel().getTelegramId() + " " + Plugin.V2RAY;
         setPluginCommand.setI18N(rootMessageData.getLocale());
         SendMessage result = setPluginCommand.handle(CommandData.builder()
                 .command(command)
@@ -82,7 +83,7 @@ public class SetPluginCommandTest extends UserTestBase {
         Assertions.assertEquals(
                 I18N.from(rootMessageData.getLocale()).get(
                         "command.access.setplugin.success",
-                        UserModel.Plugin.V2RAY,
+                        Plugin.V2RAY,
                         uMocks.u1().getUserModel().getTelegramId()
                         ),
                 result.getText()
@@ -90,14 +91,14 @@ public class SetPluginCommandTest extends UserTestBase {
         Assertions.assertAll(
                 () -> Assertions.assertTrue(userService.getUser(uMocks.u1().getUserModel().getTelegramId()).isPresent()),
                 () -> Assertions.assertTrue(userService.getUser(uMocks.u1().getUserModel().getTelegramId())
-                        .map(user -> user.getPlugin().equals(UserModel.Plugin.V2RAY)).orElse(false))
+                        .map(user -> user.getPlugin().equals(Plugin.V2RAY)).orElse(false))
         );
     }
 
     @Test
     public void whenSetPluginIncorrectTgId_thenPluginNotChanged() {
         String incorrectTgId = "1234l4";
-        String command = "splug " + incorrectTgId + " " + UserModel.Plugin.V2RAY;
+        String command = "splug " + incorrectTgId + " " + Plugin.V2RAY;
         setPluginCommand.setI18N(rootMessageData.getLocale());
         SendMessage result = setPluginCommand.handle(CommandData.builder()
                 .command(command)
@@ -115,7 +116,7 @@ public class SetPluginCommandTest extends UserTestBase {
     @Test
     public void whenSetPluginNonExistingTgId_thenPluginNotChanged() {
         Long nonExistingTgId = 1231293L;
-        String command = "splug " + nonExistingTgId + " " + UserModel.Plugin.V2RAY;
+        String command = "splug " + nonExistingTgId + " " + Plugin.V2RAY;
         setPluginCommand.setI18N(rootMessageData.getLocale());
         SendMessage result = setPluginCommand.handle(CommandData.builder()
                 .command(command)
@@ -157,7 +158,7 @@ public class SetPluginCommandTest extends UserTestBase {
 
     @Test
     public void whenSetPluginUserIncorrectUser_thenNotEnoughRights() {
-        String command = "splug " + uMocks.u1().getUserModel().getTelegramId() + " " + UserModel.Plugin.V2RAY;
+        String command = "splug " + uMocks.u1().getUserModel().getTelegramId() + " " + Plugin.V2RAY;
         setPluginCommand.setI18N(u2MessageData.getLocale());
         SendMessage result = setPluginCommand.handle(CommandData.builder()
                 .command(command)
@@ -180,7 +181,7 @@ public class SetPluginCommandTest extends UserTestBase {
 
     @Test
     public void whenSetPluginNonRootCorrectUserId_thenRoleChanged() {
-        String command = "splug " + uMocks.u1().getUserModel().getTelegramId() + " " + UserModel.Plugin.V2RAY;
+        String command = "splug " + uMocks.u1().getUserModel().getTelegramId() + " " + Plugin.V2RAY;
         setPluginCommand.setI18N(u1MessageData.getLocale());
         SendMessage result = setPluginCommand.handle(CommandData.builder()
                 .command(command)
@@ -189,14 +190,14 @@ public class SetPluginCommandTest extends UserTestBase {
         Assertions.assertEquals(
                 I18N.from(rootMessageData.getLocale()).get(
                         "command.access.setplugin.success",
-                        UserModel.Plugin.V2RAY,
+                        Plugin.V2RAY,
                         uMocks.u1().getUserModel().getTelegramId()),
                 result.getText()
         );
         Assertions.assertAll(
                 () -> Assertions.assertTrue(userService.getUser(uMocks.u1().getUserModel().getTelegramId()).isPresent()),
                 () -> Assertions.assertTrue(userService.getUser(uMocks.u1().getUserModel().getTelegramId())
-                        .map(user -> user.getPlugin().equals(UserModel.Plugin.V2RAY)).orElse(false))
+                        .map(user -> user.getPlugin().equals(Plugin.V2RAY)).orElse(false))
         );
     }
 
@@ -213,14 +214,10 @@ public class SetPluginCommandTest extends UserTestBase {
         );
         log.info("Current user 1: {}", userService.getUser(tgMocks.tgu1().getTelegramId()));
         log.info("Select callback result: {}", selectCallbackResult);
-        String selectCommandPressButtonCallback = selectCallbackResult.getReplyMarkup()
-                .getKeyboard()
-                .stream()
-                .flatMap(Collection::stream)
-                .filter((button) -> button.getText().equals(i18N.get("command.access.setplugin.inline.button")))
-                .findFirst()
-                .map(InlineKeyboardButton::getCallbackData)
-                .orElse(null);
+        String selectCommandPressButtonCallback = CallbackTestUtil.extractCallbackData(
+                selectCallbackResult.getReplyMarkup(),
+                (button) -> button.getText().equals(i18N.get("command.access.setplugin.inline.button"))
+        );
         Assertions.assertNotNull(selectCommandPressButtonCallback);
         Assertions.assertEquals(i18N.get("command.access.select.command"), selectCallbackResult.getText());
         EditMessageText selectCommandResult = (EditMessageText) callbackStack.handle(CallbackData.builder()
@@ -229,14 +226,10 @@ public class SetPluginCommandTest extends UserTestBase {
                 .messageData(u1MessageData)
                 .build()
         );
-        String selectPluginButtonCallback = selectCommandResult.getReplyMarkup()
-                .getKeyboard()
-                .stream()
-                .flatMap(Collection::stream)
-                .filter((button) -> button.getText().equals(UserModel.Plugin.V2RAY.name()))
-                .findFirst()
-                .map(InlineKeyboardButton::getCallbackData)
-                .orElse(null);
+        String selectPluginButtonCallback = CallbackTestUtil.extractCallbackData(
+                selectCommandResult.getReplyMarkup(),
+                (button) -> button.getText().equals(Plugin.V2RAY.name())
+        );
         Assertions.assertNotNull(selectPluginButtonCallback);
         Assertions.assertEquals(i18N.get("util.callback.select.plugin"), selectCommandResult.getText());
         EditMessageText selectPluginResult = (EditMessageText) callbackStack.handle(CallbackData.builder()
@@ -246,7 +239,7 @@ public class SetPluginCommandTest extends UserTestBase {
                 .build());
         Assertions.assertEquals(
                 i18N.get("command.access.setplugin.success",
-                        UserModel.Plugin.V2RAY,
+                        Plugin.V2RAY,
                         uMocks.u1().getUserModel().getTelegramId()
                 ),
                 selectPluginResult.getText()

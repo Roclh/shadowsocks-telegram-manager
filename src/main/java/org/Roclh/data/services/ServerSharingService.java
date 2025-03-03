@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.enums.Plugin;
 import org.Roclh.ss.ShadowsocksProperties;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class ServerSharingService {
         } catch (URISyntaxException e) {
             log.error("Failed to create URI string", e);
         }
-        if (!userModel.getPlugin().equals(UserModel.Plugin.DEFAULT)) {
+        if (!userModel.getPlugin().equals(Plugin.DEFAULT)) {
             uriBuilder.append("?plugin=").append(userModel.getPlugin().getPluginLinkPostfix());
             if (!userModel.getPlugin().getPluginOpts().isEmpty()) {
                 uriBuilder.append(userModel.getPlugin().getPluginOpts().entrySet().stream().map(entry ->

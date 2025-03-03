@@ -1,7 +1,7 @@
 package org.Roclh.handlers.commands.access;
 
 import org.Roclh.bot.TelegramBotStorage;
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.messaging.CommandData;
@@ -27,6 +27,12 @@ public class RegisterCommand extends AbstractCommand<SendMessage> {
     public SendMessage handle(CommandData commandData) {
         boolean isSaved = telegramUserService.saveUser(telegramUserService.getUser(commandData.getMessageData().getTelegramId())
                 .map(user -> {
+                    if (user.getTelegramName() == null) {
+                        user.setTelegramName(commandData.getMessageData().getTelegramName());
+                    }
+                    if (user.getChatId() == null) {
+                        user.setChatId(commandData.getMessageData().getChatId());
+                    }
                     if (user.getRole().prior < Role.USER.prior) {
                         user.setRole(Role.USER);
                     }

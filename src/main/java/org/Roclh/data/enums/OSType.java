@@ -1,4 +1,4 @@
-package org.Roclh.data;
+package org.Roclh.data.enums;
 
 import org.Roclh.utils.i18n.I18N;
 

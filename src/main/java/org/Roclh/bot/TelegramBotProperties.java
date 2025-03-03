@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Configuration;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
+@Data
 @Configuration
 @ConfigurationProperties(prefix = "telegram")
-@Data
 public class TelegramBotProperties {
     @NotBlank
     private String name;

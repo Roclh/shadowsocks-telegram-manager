@@ -1,7 +1,7 @@
 package org.Roclh.handlers.commands.support;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.enums.Plugin;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.WithCallbackStack;
@@ -30,7 +30,7 @@ public class PluginGuideCommand extends AbstractCommand<SendMessage> implements 
         if(words.length < 2){
             return MessageUtils.sendMessage(commandData.getMessageData()).text("Саси пиписю").build();
         }
-        UserModel.Plugin plugin = UserModel.Plugin.valueOf(words[1]);
+        Plugin plugin = Plugin.valueOf(words[1]);
         return switch (plugin){
             case DEFAULT -> MessageUtils.sendMessage(commandData.getMessageData())
                     .text(i18N.get("command.support.pluginguide.how.to.use.plugins.guide.default"))

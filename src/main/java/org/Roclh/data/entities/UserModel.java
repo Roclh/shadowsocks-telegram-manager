@@ -13,11 +13,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.Roclh.data.enums.Plugin;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
 import java.util.Objects;
 
 @Getter
@@ -38,6 +38,7 @@ public class UserModel {
     @Nullable
     private String password;
     @NotNull
+    @Builder.Default
     private Plugin plugin = Plugin.DEFAULT;
     @Nullable
     private Long usedPort;
@@ -66,7 +67,7 @@ public class UserModel {
         return "<b><i>" + userModel.getTelegramName() + ":</i></b>\n<u>Telegram Id:</u> " +
                 "<a href=\"tg://user?id=" + userModel.getTelegramId() + "\">" + userModel.getTelegramId() + "</a>" +
                 "\n<u>Used port</u>: " + usedPort +
-                "\n<u>Password</u>: <tg-spoiler>" + password + "</tg-spoiler>"+
+                "\n<u>Password</u>: <tg-spoiler>" + password + "</tg-spoiler>" +
                 "\n<u>Is enabled</u>: " + isEnabled +
                 "\n<u>Plugin</u>: " + plugin;
     }
@@ -74,18 +75,5 @@ public class UserModel {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
-
-    @Getter
-    public enum Plugin {
-        DEFAULT("", Map.of()), V2RAY("v2ray-plugin", Map.of("host", "poh.isgood.host"));
-
-        Plugin(String pluginLinkPostfix, Map<String, String> pluginOpts){
-            this.pluginLinkPostfix = pluginLinkPostfix;
-            this.pluginOpts = pluginOpts;
-        }
-
-        private final String pluginLinkPostfix;
-        private final Map<String, String> pluginOpts;
     }
 }

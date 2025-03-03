@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.Roclh.data.enums.Bandwidth;
 import org.springframework.lang.Nullable;
 
 @Getter
@@ -42,18 +43,5 @@ public class BandwidthModel {
     public String toFormattedString(){
         return "\n<u>Bandwidth</u>:" + bandwidth;
     }
-    @Getter
-    public enum Bandwidth {
-        MB4("4mbit"), MB8("8mbit"), MB16("16mbit"), MB32("32mbit"), MB64("64mbit");
 
-        public String getBurst() {
-            return (Long.parseLong(this.bandwidth.replaceAll("[a-zA-Z]", "")) / 4L) + "m";
-        }
-
-        private final String bandwidth;
-
-        Bandwidth(String bandwidth) {
-            this.bandwidth = bandwidth;
-        }
-    }
 }

@@ -1,6 +1,7 @@
 package org.Roclh.handlers.commands.sh;
 
 import lombok.extern.slf4j.Slf4j;
+import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
@@ -33,10 +34,10 @@ public class ScreenListCommand extends AbstractCommand<SendMessage> implements W
     @Override
     public SendMessage handle(CommandData commandData) {
         List<String> activeScreens = new java.util.ArrayList<>(screenListScript.execute()
-                .stream().map(line -> telegramUserService.getUser(Long.valueOf(line.split(":")[1])).orElse(null))
-                .map((userModel) -> {
+                .stream().map(line -> {
+                    TelegramUserModel userModel = telegramUserService.getUser(Long.valueOf(line.split(":")[1])).orElse(null);
                     if (userModel == null) {
-                        return "Unknown screen\n";
+                        return "Unknown screen: " + line + "\n";
                     }
                     return userModel.getTelegramId() + ":" + userModel.getTelegramName();
                 })
@@ -55,7 +56,7 @@ public class ScreenListCommand extends AbstractCommand<SendMessage> implements W
                             userModel.isEnabled() + "]";
                 }).collect(Collectors.joining("\n"));
         if (!activeScreens.isEmpty()) {
-            message = "\nNot in database:\n" + String.join("\n", activeScreens);
+            message = message + "\nNot in database:\n" + String.join("\n", activeScreens);
         }
         if (message.isEmpty()) {
             return MessageUtils.sendMessage(commandData.getMessageData())

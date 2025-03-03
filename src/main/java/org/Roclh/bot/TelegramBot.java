@@ -7,6 +7,8 @@ import org.Roclh.data.services.LocalizationService;
 import org.Roclh.handlers.CallbackHandler;
 import org.Roclh.handlers.CommandHandler;
 import org.Roclh.handlers.messaging.CommandData;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -25,9 +27,10 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class TelegramBot extends TelegramLongPollingBot {
     private static final Map<Long, Function<CommandData, PartialBotApiMethod<? extends Serializable>>> waitingForInput = new HashMap<>();
     private final TelegramBotProperties telegramBotProperties;

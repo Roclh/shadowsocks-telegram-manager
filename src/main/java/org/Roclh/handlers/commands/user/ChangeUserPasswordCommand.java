@@ -34,7 +34,7 @@ public class ChangeUserPasswordCommand extends AbstractCommand<SendMessage> impl
         MessageData messageData = commandData.getMessageData();
         String[] words = commandData.getCommand().split(" ");
         if (words.length < 3) {
-            return MessageUtils.sendMessage(commandData.getMessageData()).text("Failed to execute command - not enough arguments").build();
+            return MessageUtils.sendMessage(commandData.getMessageData()).text(i18N.get("common.validation.not.enough.argument", 3)).build();
         }
         long chatId = messageData.getChatId();
         SendMessage sendMessage = new SendMessage();
@@ -43,17 +43,21 @@ public class ChangeUserPasswordCommand extends AbstractCommand<SendMessage> impl
         Long telegramId = Long.valueOf(words[1]);
         String password = words[2];
 
+        if (userService.getUser(telegramId).isEmpty()) {
+            log.error("Failed to change password - user with id {} does not exists", telegramId);
+            sendMessage.setText(i18N.get("command.user.chpwd.validation.user.not.exists", telegramId));
+        }
         if (userService.getUser(telegramId).map(userModel -> restartScript.execute(userModel, false)).orElse(false)) {
             log.error("Failed to change password - failed to execute sh script for user with id {}", telegramId);
-            sendMessage.setText("Failed to change password - failed to execute sh script for user with id " + telegramId);
+            sendMessage.setText(i18N.get("command.user.chpwd.validation.failed.to.execute.script", telegramId));
             return sendMessage;
         }
         if (!userService.changePassword(telegramId, password)) {
             log.error("Failed to change password - failed to change password for user with id {}", telegramId);
-            sendMessage.setText("Failed to change password - failed to change password for user with id " + telegramId);
+            sendMessage.setText(i18N.get("command.user.chpwd.validation.failed.to.store.db", telegramId));
             return sendMessage;
         }
-        sendMessage.setText("Successfully changed password for user with id " + telegramId);
+        sendMessage.setText(i18N.get("command.user.chpwd.success", telegramId));
         return sendMessage;
     }
 

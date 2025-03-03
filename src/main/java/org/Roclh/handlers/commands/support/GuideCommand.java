@@ -1,7 +1,7 @@
 package org.Roclh.handlers.commands.support;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.data.OSType;
+import org.Roclh.data.enums.OSType;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.WithCallbackStack;

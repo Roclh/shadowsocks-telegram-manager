@@ -1,7 +1,8 @@
 package org.Roclh.handlers.commands.access;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Plugin;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
@@ -44,10 +45,10 @@ public class SetPluginCommand extends AbstractCommand<SendMessage> implements Wi
         SendMessage.SendMessageBuilder sendMessage = MessageUtils.sendMessage(commandData.getMessageData());
         sendMessage.replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.default.navigation.data.back"), "start"));
         long telegramId;
-        UserModel.Plugin plugin;
+        Plugin plugin;
         try {
             telegramId = Long.parseLong(words[1]);
-            plugin = UserModel.Plugin.valueOf(words[2]);
+            plugin = Plugin.valueOf(words[2]);
         } catch (NumberFormatException e) {
             log.error("Failed to set plugin - failed to parse telegram id {}", words[1]);
             sendMessage.text(i18N.get("command.access.setplugin.validation.telegram.id", words[1]));

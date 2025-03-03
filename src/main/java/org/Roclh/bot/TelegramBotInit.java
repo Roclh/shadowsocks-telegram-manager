@@ -2,7 +2,8 @@ package org.Roclh.bot;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Plugin;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
@@ -53,8 +54,8 @@ public class TelegramBotInit {
                             .role(Role.USER)
                             .telegramId(0L)
                             .build())
-                    .plugin(UserModel.Plugin.DEFAULT)
-                    .usedPort(shadowsocksProperties.getPortRange().getLeftRangeLimit() - 1)
+                    .plugin(Plugin.DEFAULT)
+                    .usedPort(shadowsocksProperties.getTestPort())
                     .isEnabled(true)
                     .password("qwertyui")
                     .build())) {

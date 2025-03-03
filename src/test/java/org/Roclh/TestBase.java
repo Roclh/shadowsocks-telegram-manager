@@ -1,9 +1,12 @@
 package org.Roclh;
 
+import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.sh.scripts.CreateBandwidthRulesetScript;
+import org.Roclh.sh.scripts.DisableShadowsocksServerScript;
 import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
 import org.Roclh.sh.scripts.EnableV2RayShadowsocksServerScript;
 import org.Roclh.sh.scripts.RestartShadowsocksServerScript;
+import org.Roclh.sh.scripts.ScreenListScript;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,8 +19,14 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Assert;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ComponentScan(
@@ -27,7 +36,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
                 CreateBandwidthRulesetScript.class,
                 EnableDefaultShadowsocksServerScript.class,
                 EnableV2RayShadowsocksServerScript.class,
-                RestartShadowsocksServerScript.class
+                RestartShadowsocksServerScript.class,
+                DisableShadowsocksServerScript.class,
+                ScreenListScript.class
         }
 ))
 @Testcontainers
@@ -58,5 +69,20 @@ public abstract class TestBase {
     @Test
     public void testDatabaseConnection(){
         Assert.isTrue(postgres.isRunning(), "Postgress container should be running");
+    }
+
+    public Update mockMessageFrom(MessageData messageData){
+        Update update = mock(Update.class);
+        Message message = mock(Message.class);
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(messageData.getTelegramId());
+        when(user.getUserName()).thenReturn(messageData.getTelegramName());
+        when(message.getChatId()).thenReturn(messageData.getChatId());
+        when(message.getMessageId()).thenReturn(messageData.getMessageId());
+        when(message.hasText()).thenReturn(true);
+        when(message.getFrom()).thenReturn(user);
+        when(update.getMessage()).thenReturn(message);
+        when(update.hasMessage()).thenReturn(true);
+        return update;
     }
 }

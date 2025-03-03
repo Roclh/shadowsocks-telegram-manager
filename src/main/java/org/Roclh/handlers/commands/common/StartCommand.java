@@ -1,7 +1,8 @@
 package org.Roclh.handlers.commands.common;
 
 import lombok.extern.slf4j.Slf4j;
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Plugin;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
@@ -45,14 +46,14 @@ public class StartCommand extends AbstractCommand<SendMessage> implements WithCa
                             userService.getUser(messageData.getTelegramId()).map(UserModel::isEnabled).orElse(false) ?
                                     i18N.get("command.common.start.server.state.enabled") :
                                     i18N.get("command.common.start.server.state.disabled"),
-                            userService.getUser(messageData.getTelegramId()).map(UserModel::getPlugin).orElse(UserModel.Plugin.DEFAULT)
+                            userService.getUser(messageData.getTelegramId()).map(UserModel::getPlugin).orElse(Plugin.DEFAULT)
                     ) :
                     i18N.get("command.common.start.select.command.user",
                             messageData.getTelegramName(),
                             userService.getUser(messageData.getTelegramId()).map(UserModel::isEnabled).orElse(false) ?
                                     i18N.get("command.common.start.server.state.enabled") :
                                     i18N.get("command.common.start.server.state.disabled"),
-                            userService.getUser(messageData.getTelegramId()).map(UserModel::getPlugin).orElse(UserModel.Plugin.DEFAULT)
+                            userService.getUser(messageData.getTelegramId()).map(UserModel::getPlugin).orElse(Plugin.DEFAULT)
                             )
             );
             sendMessage.replyMarkup(getInlineKeyboardButtons(commandData.getMessageData()));

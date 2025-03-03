@@ -1,6 +1,6 @@
 package org.Roclh.handlers.commands.telegramuser;
 
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.telegramUser.SetRoleCommand;
 import org.Roclh.handlers.messaging.CommandData;

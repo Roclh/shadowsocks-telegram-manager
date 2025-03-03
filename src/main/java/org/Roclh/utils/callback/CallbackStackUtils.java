@@ -2,7 +2,8 @@ package org.Roclh.utils.callback;
 
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.bot.TelegramBot;
-import org.Roclh.data.Role;
+import org.Roclh.data.enums.Plugin;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.entities.TelegramUserModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.services.TelegramUserService;
@@ -142,8 +143,8 @@ public class CallbackStackUtils {
         I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
         return MessageUtils.editMessage(callbackData.getMessageData())
                 .text(i18N.get("util.callback.select.plugin"))
-                .replyMarkup(InlineUtils.getListNavigationMarkup(Arrays.stream(UserModel.Plugin.values())
-                                .collect(Collectors.toMap(UserModel.Plugin::name, UserModel.Plugin::name)),
+                .replyMarkup(InlineUtils.getListNavigationMarkup(Arrays.stream(Plugin.values())
+                                .collect(Collectors.toMap(Plugin::name, Plugin::name)),
                         (data) -> callbackData.getCallbackData() + " " + data,
                         callbackData.getMessageData().getLocale(),
                         redoCallbackSupplier

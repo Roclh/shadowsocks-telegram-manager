@@ -27,6 +27,8 @@ public class ShadowsocksProperties {
     private String availablePorts;
     @NotBlank
     private String defaultMethod;
+    @NotBlank
+    private Long testPort;
 
     @EventListener(ContextRefreshedEvent.class)
     @Order(0)

@@ -1,6 +1,6 @@
 package org.Roclh.handlers.commands.common;
 
-import org.Roclh.data.entities.UserModel;
+import org.Roclh.data.enums.Plugin;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
@@ -72,7 +72,7 @@ public class StartCommandTest extends UserTestBase {
                 i18N.get("command.common.start.select.command",
                         rootMessageData.getTelegramName(),
                         i18N.get("command.common.start.server.state.disabled"),
-                        UserModel.Plugin.DEFAULT
+                        Plugin.DEFAULT
                 ),
                 rootResult.getText()
         );
