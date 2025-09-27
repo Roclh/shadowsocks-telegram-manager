@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -63,8 +64,8 @@ public class TelegramUserService {
         }
     }
 
-    public List<TelegramUserModel> getUsers(Predicate<TelegramUserModel> filter) {
-        return telegramUserRepository.findAll().stream().filter(filter).toList();
+    public Stream<TelegramUserModel> getUsers(Predicate<TelegramUserModel> filter) {
+        return telegramUserRepository.findAll().stream().filter(filter);
     }
 
     public List<TelegramUserModel> getUsers() {
@@ -98,6 +99,9 @@ public class TelegramUserService {
         return telegramUserRepository.updateRoleByTelegramId(role, telegramId) > 0;
     }
 
+    public Stream<TelegramUserModel> getManagers(){
+        return getUsers(user -> user.getRole().prior >= Role.MANAGER.prior);
+    }
     /**
      * ONLY FOR TEST USAGE
      */

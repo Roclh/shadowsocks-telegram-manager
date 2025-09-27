@@ -86,7 +86,7 @@ public class CallbackStack {
         Assert.isTrue(this.callbackKey.equals(callbackData.getCallbackCommand()), "Wrong callback handler!");
         String[] words = callbackData.getCallbackData().split(" ");
         I18N i18N = I18N.from(callbackData.getMessageData().getLocale());
-        int len = words.length - 1;
+        int len = words.length - 1 - (InlineUtils.paginationMatches(callbackData.getCallbackData()) ? 1 : 0);
         if (callbackStack.containsKey(words[0])) {
             Map<Integer, CallbackArgumentHandler> callbackArgHandler = callbackStack.get(words[0]);
             if (callbackArgHandler.containsKey(len)) {
@@ -153,17 +153,15 @@ public class CallbackStack {
     }
 
     public List<InlineKeyboardButton> getCallbackStackButton(Long tgId) {
-        return !commandDisplayConditionsMap.isEmpty() &&
-                commandDisplayConditionsMap.values()
+        return commandDisplayConditionsMap.values()
                         .stream()
-                        .noneMatch(condition -> condition.test(tgId)) ?
-                null : List.of(
-                InlineKeyboardButton.builder()
-                        .text(this.getLocalizedCallbackKey())
-                        .callbackData(this.getCallbackKey())
-                        .build()
-        );
-
+                        .anyMatch(condition -> condition.test(tgId)) ?
+                List.of(
+                        InlineKeyboardButton.builder()
+                                .text(this.getLocalizedCallbackKey())
+                                .callbackData(this.getCallbackKey())
+                                .build()
+                ) : null;
     }
 
     public static class CallbackStackBuilder {
@@ -194,6 +192,7 @@ public class CallbackStack {
 
         public CallbackStackBuilder forCommand(String command) {
             this.command = command;
+            this.displayConditions.put(command, (tgId) -> true);
             return this;
         }
 
@@ -205,12 +204,14 @@ public class CallbackStack {
         public CallbackStackBuilder forCommand(String command, Map<String, String> commandLocalizationMap) {
             this.command = command;
             this.commandLocalizationMap.putAll(commandLocalizationMap);
+            this.displayConditions.put(command, (tgId) -> true);
             return this;
         }
 
         public CallbackStackBuilder forCommand(String command, String localizedCommand) {
             this.command = command;
             this.commandLocalizationMap.put(localizedCommand, command);
+            this.displayConditions.put(command, (tgId) -> true);
             return this;
         }
 

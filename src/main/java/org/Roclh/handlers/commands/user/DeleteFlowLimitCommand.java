@@ -7,11 +7,15 @@ import org.Roclh.data.services.BandwidthService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.WithCallbackStack;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.sh.scripts.DeleteBandwidthRuleScript;
+import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.callback.CallbackStack;
+import org.Roclh.utils.callback.CallbackStackUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -19,10 +23,11 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class DeleteFlowLimitCommand extends AbstractCommand<SendMessage> {
+public class DeleteFlowLimitCommand extends AbstractCommand<SendMessage> implements WithCallbackStack {
     private final BandwidthService bandwidthService;
     private final UserService userService;
     private final DeleteBandwidthRuleScript deleteBandwidthRuleScript;
+
     public DeleteFlowLimitCommand(TelegramUserService telegramUserService, CommandRegistry commandRegistry, BandwidthService bandwidthService, UserService userService, DeleteBandwidthRuleScript deleteBandwidthRuleScript) {
         super(telegramUserService, commandRegistry);
         this.bandwidthService = bandwidthService;
@@ -42,23 +47,23 @@ public class DeleteFlowLimitCommand extends AbstractCommand<SendMessage> {
         sendMessage.setChatId(messageData.getChatId());
 
         UserModel userModel = userService.getUser(telegramId).orElse(null);
-        if(userModel == null){
+        if (userModel == null) {
             log.error("Failed to delete flow limit - user with id {} does not exists", telegramId);
             sendMessage.setText("Failed to delete flow limit - user with id " + telegramId + " does not exists");
             return sendMessage;
         }
         BandwidthModel bandwidthModel = bandwidthService.getRule(telegramId).orElse(null);
-        if(bandwidthModel == null){
+        if (bandwidthModel == null) {
             log.error("Failed to delete flow limit - bandwidth for user with id {} does not exists", telegramId);
             sendMessage.setText("Failed to delete flow limit - bandwidth for user with id " + telegramId + " does not exists");
             return sendMessage;
         }
-        if(!deleteBandwidthRuleScript.execute(bandwidthModel)){
+        if (!deleteBandwidthRuleScript.execute(bandwidthModel)) {
             log.error("Failed to delete flow limit - failed to execute sh script for user with id {}", telegramId);
             sendMessage.setText("Failed to delete flow limit - failed to execute sh script for user with id " + telegramId);
             return sendMessage;
         }
-        if(!bandwidthService.deleteRule(bandwidthModel)){
+        if (!bandwidthService.deleteRule(bandwidthModel)) {
             log.error("Failed to delete flow limit - either it not exists or failed to delete with id {}", telegramId);
             sendMessage.setText("Failed to delete flow limit - either it not exists or failed to delete with id " + telegramId);
             return sendMessage;
@@ -70,11 +75,31 @@ public class DeleteFlowLimitCommand extends AbstractCommand<SendMessage> {
 
     @Override
     public String getHelp() {
-        return String.join("|", getCommandNames().subList(0, 1))+ " {telegramId} \n -- delete flow for user with id {telegramId}";
+        return String.join("|", getCommandNames().subList(0, 1)) + " {telegramId} \n -- delete flow for user with id {telegramId}";
     }
 
     @Override
     public List<String> getCommandNames() {
         return List.of("delflow", "flowdel", "flowd", "dflow");
+    }
+
+    @Override
+    public CallbackStack getCallbackStack() {
+        return CallbackStack.of("user")
+                .forCommand("delflow", "Delete flow limit")
+                .withCommandDisplayCondition((id) -> bandwidthService.hasAnyRule())
+                .with(1, (callbackData) ->
+                        CallbackStackUtils.getDefaultSelectUserIdMessage(callbackData,
+                                "Select user to delete flow",
+                                userService,
+                                (userModel) -> bandwidthService.hasRule(userModel.getUserModel().getTelegramId()))
+                )
+                .with(2, (callbackData) ->
+                        MessageUtils.editMessage(callbackData.getMessageData())
+                                .text(handle(CommandData.from(callbackData)).getText())
+                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                                .build()
+                )
+                .build();
     }
 }

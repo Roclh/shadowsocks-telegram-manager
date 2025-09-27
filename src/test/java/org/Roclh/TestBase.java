@@ -1,7 +1,6 @@
 package org.Roclh;
 
 import org.Roclh.handlers.messaging.MessageData;
-import org.Roclh.sh.scripts.CreateBandwidthRulesetScript;
 import org.Roclh.sh.scripts.DisableShadowsocksServerScript;
 import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
 import org.Roclh.sh.scripts.EnableV2RayShadowsocksServerScript;
@@ -33,7 +32,6 @@ import static org.mockito.Mockito.when;
         excludeFilters = @ComponentScan.Filter(
         type = FilterType.ASSIGNABLE_TYPE,
         classes = {
-                CreateBandwidthRulesetScript.class,
                 EnableDefaultShadowsocksServerScript.class,
                 EnableV2RayShadowsocksServerScript.class,
                 RestartShadowsocksServerScript.class,

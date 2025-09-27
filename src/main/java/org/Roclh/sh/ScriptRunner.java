@@ -75,13 +75,13 @@ public class ScriptRunner {
             BufferedReader stdError = new BufferedReader(new
                     InputStreamReader(p.getErrorStream()));
             stdError.lines().forEach(line -> {
-                log.info(line);
+                log.error(line);
                 output.appendError(line);
             });
             p.onExit().get(10, TimeUnit.SECONDS);
             return resultProcessor.apply(output);
         } catch (IOException | ExecutionException | InterruptedException | TimeoutException e) {
-            log.error("Failed to execute script " + String.join(" ", command), e);
+            log.error("Failed to execute script {}", String.join(" ", command), e);
             return fallbackProvider.get();
         }
     }

@@ -44,7 +44,7 @@ public class RegisterCommand extends AbstractCommand<SendMessage> {
             sendMessage.text(i18N.get("command.common.register.successfully.registred"));
             sendMessage.replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("command.common.register.manage.button"), "start"));
             telegramUserService.getUsers(user -> user.getRole().prior >= Role.MANAGER.prior)
-                    .stream().filter(user -> user.getChatId() != null)
+                    .filter(user -> user.getChatId() != null)
                     .forEach(user -> botStorage.getTelegramBot().sendMessage(SendMessage.builder()
                             .chatId(user.getChatId())
                             .text(i18N.get("command.common.register.notify.managers.message",

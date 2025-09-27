@@ -1,7 +1,6 @@
 package org.Roclh.mock;
 
 import org.Roclh.data.entities.UserModel;
-import org.Roclh.sh.scripts.CreateBandwidthRulesetScript;
 import org.Roclh.sh.scripts.DisableShadowsocksServerScript;
 import org.Roclh.sh.scripts.EnableDefaultShadowsocksServerScript;
 import org.Roclh.sh.scripts.EnableV2RayShadowsocksServerScript;
@@ -22,15 +21,6 @@ public class ShScriptsMocks {
 
     private static final Set<UserModel> enabledUsers = new CopyOnWriteArraySet<>();
 
-    @Bean
-    @Primary
-    public CreateBandwidthRulesetScript createBandwidthRulesetScript() {
-        CreateBandwidthRulesetScript createBandwidthRulesetScript = mock(CreateBandwidthRulesetScript.class);
-        Mockito.doNothing().when(createBandwidthRulesetScript).init();
-        Mockito.when(createBandwidthRulesetScript.execute(Mockito.any())).then((ans) -> false);
-        Mockito.when(createBandwidthRulesetScript.execute()).then((ans) -> false);
-        return createBandwidthRulesetScript;
-    }
 
     @Bean
     @Primary
