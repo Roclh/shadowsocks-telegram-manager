@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface LocalizationRepository extends JpaRepository<LocalizationModel, Long> {
-
-
     @Transactional
     @Modifying
     @Query("update LocalizationModel l set l.locale = ?1 where l.telegramId = ?2")

@@ -66,7 +66,7 @@ public class SendNotificationCommand extends AbstractCommand<SendMessage> implem
         AtomicInteger counter = new AtomicInteger(0);
         telegramUserService.getUsers(user -> user.getRole().prior >= role.prior &&
                         localizationService.matchesLang(user.getTelegramId(), lang)
-                        && !user.getTelegramId().equals(commandData.getMessageData().getTelegramId())
+                        && (!user.getTelegramId().equals(commandData.getMessageData().getTelegramId()) || role.equals(Role.ROOT))
                 )
                 .forEach(user -> {
                     MessageData messageData = MessageData.fromUser(user, selectedLocale);

@@ -121,13 +121,13 @@ public class AddUserCommand extends AbstractCommand<SendMessage> implements With
             MessageData userMessageData = MessageData.builder()
                     .locale(localizationService.getOrCreate(userModel.getUserModel().getTelegramId()))
                     .chatId(userModel.getUserModel().getChatId())
-                    .telegramName(Optional.ofNullable(userModel.getUserModel().getTelegramName()).orElse(""))
+                    .telegramName(userModel.getUserModel().getTelegramName())
                     .telegramId(userModel.getUserModel().getTelegramId())
                     .build();
             telegramBotStorage.getTelegramBot().sendMessage(
                     MessageUtils.sendMessage(userMessageData)
                             .text(I18N.from(userMessageData).get("command.common.adduserwithoutpassword.granted.access"))
-                            .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.common.getqr.inline.button"), "qr"))
+                            .replyMarkup(InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.common.getqr.inline.button"), "access qr"))
                             .build());
         }
         sendMessage.setText(i18N.get("command.user.add.success", telegramId));
@@ -148,7 +148,9 @@ public class AddUserCommand extends AbstractCommand<SendMessage> implements With
     public CallbackStack getCallbackStack() {
         return CallbackStack.of("user")
                 .forCommand("add", i18N.get("callback.user.user.inline.button.add.with.defined.password"))
-                .withCommandDisplayCondition((telegramId) -> !telegramUserService.getUsers(user -> !userService.isAddedUser(user)).isEmpty())
+                .withCommandDisplayCondition((telegramId) -> !telegramUserService.getUsers(user -> !userService.isAddedUser(user))
+                        .toList()
+                        .isEmpty())
                 .with(1, (callbackData) ->
                         CallbackStackUtils.getDefaultSelectTelegramUserIdMessage(
                                 callbackData,

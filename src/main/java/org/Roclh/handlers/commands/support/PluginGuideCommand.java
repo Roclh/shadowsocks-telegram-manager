@@ -2,6 +2,7 @@ package org.Roclh.handlers.commands.support;
 
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.enums.Plugin;
+import org.Roclh.data.enums.Role;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.handlers.commands.AbstractCommand;
 import org.Roclh.handlers.commands.WithCallbackStack;
@@ -41,6 +42,11 @@ public class PluginGuideCommand extends AbstractCommand<SendMessage> implements 
                     .replyMarkup(InlineUtils.getNavigationToStart(commandData.getMessageData()))
                     .build();
         };
+    }
+
+    @Override
+    public boolean isAllowed(Long userId) {
+        return telegramUserService.isAllowed(userId, Role.USER);
     }
 
     @Override

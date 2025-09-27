@@ -22,7 +22,7 @@ public class TelegramStartupTest extends TestBase {
     void testTelegramBotCreatedAndAvailableFromBotStorage(){
         Assert.notNull(telegramBotStorage.getTelegramBot(), "Telegram bot storage is empty!");
         Assert.notEmpty(telegramUserService.getUsers(), "At least one user should exist");
-        Assert.isTrue(!telegramUserService.getUsers(user -> user.getRole().prior >= 3).isEmpty(),
+        Assert.isTrue(!telegramUserService.getUsers(user -> user.getRole().prior >= 3).toList().isEmpty(),
                 "At least one user should be root");
     }
 

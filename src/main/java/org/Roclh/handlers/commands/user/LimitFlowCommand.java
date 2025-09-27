@@ -8,11 +8,15 @@ import org.Roclh.data.services.BandwidthService;
 import org.Roclh.data.services.TelegramUserService;
 import org.Roclh.data.services.UserService;
 import org.Roclh.handlers.commands.AbstractCommand;
+import org.Roclh.handlers.commands.WithCallbackStack;
 import org.Roclh.handlers.messaging.CommandData;
 import org.Roclh.handlers.messaging.MessageData;
 import org.Roclh.handlers.registry.CommandRegistry;
 import org.Roclh.sh.scripts.CreateBandwidthRuleScript;
+import org.Roclh.utils.InlineUtils;
 import org.Roclh.utils.MessageUtils;
+import org.Roclh.utils.callback.CallbackStack;
+import org.Roclh.utils.callback.CallbackStackUtils;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
@@ -22,7 +26,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class LimitFlowCommand extends AbstractCommand<SendMessage> {
+public class LimitFlowCommand extends AbstractCommand<SendMessage> implements WithCallbackStack {
     private final UserService userService;
     private final BandwidthService bandwidthService;
     private final CreateBandwidthRuleScript createBandwidthRuleScript;
@@ -64,12 +68,12 @@ public class LimitFlowCommand extends AbstractCommand<SendMessage> {
                 .userModel(userModel.get())
                 .bandwidth(bandwidth)
                 .build();
-        if (!createBandwidthRuleScript.execute(bandwidthModel)){
+        if (!createBandwidthRuleScript.execute(bandwidthModel)) {
             log.error("Failed to set a bandwidth rule - failed to execute sh script for id {}", telegramId);
             sendMessage.setText("Failed to set a bandwidth rule - failed to add or create a rule for id " + telegramId);
             return sendMessage;
         }
-        if (!bandwidthService.setRule(bandwidthModel)){
+        if (!bandwidthService.setRule(bandwidthModel)) {
             log.error("Failed to set a bandwidth rule - failed to add or create a rule for id {}", telegramId);
             sendMessage.setText("Failed to set a bandwidth rule - failed to add or create a rule for id " + telegramId);
             return sendMessage;
@@ -88,5 +92,32 @@ public class LimitFlowCommand extends AbstractCommand<SendMessage> {
     @Override
     public List<String> getCommandNames() {
         return List.of("limitflow", "lflow", "flow", "fl");
+    }
+
+    @Override
+    public CallbackStack getCallbackStack() {
+        return CallbackStack.of("user")
+                .forCommand("lflow", i18N.get("command.user.limit.flow.inline.button"))
+                .with(1, (callbackData) ->
+                        CallbackStackUtils.getDefaultSelectUserIdMessage(
+                                callbackData,
+                                i18N.get("command.user.limit.flow.select.user"),
+                                userService,
+                                UserModel::isEnabled)
+                )
+                .with(2, (callbackData) ->
+                        CallbackStackUtils.getDefaultSelectBandwidthMessage(
+                                callbackData,
+                                i18N.get("command.user.limit.flow.select.bandwidth"),
+                                () -> InlineUtils.trimLastWord(callbackData.getCallbackData())
+                        )
+                )
+                .with(3, (callbackData) ->
+                        MessageUtils.editMessage(callbackData.getMessageData())
+                                .text(handle(CommandData.from(callbackData)).getText())
+                                .replyMarkup(InlineUtils.getNavigationToStart(callbackData.getMessageData()))
+                                .build()
+                )
+                .build();
     }
 }

@@ -12,7 +12,7 @@ import java.util.Locale;
 @Data
 @Builder
 public class MessageData {
-    @NonNull
+    @Nullable
     private String telegramName;
     @NonNull
     private Long telegramId;
@@ -25,7 +25,6 @@ public class MessageData {
 
     @NonNull
     public static MessageData fromUser(@NonNull TelegramUserModel telegramUserModel, @NonNull Locale locale){
-        Assert.notNull(telegramUserModel.getTelegramName(), "Telegram name can't be null!");
         Assert.notNull(telegramUserModel.getChatId(), "Chat id can't be null!");
         return builder()
                 .telegramName(telegramUserModel.getTelegramName())

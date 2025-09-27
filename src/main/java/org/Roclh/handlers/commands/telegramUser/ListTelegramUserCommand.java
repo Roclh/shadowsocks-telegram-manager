@@ -69,25 +69,10 @@ public class ListTelegramUserCommand extends AbstractCommand<SendMessage> implem
                 .withSelectCommandText(i18N.get("callback.user.telegramuser.select.command"))
                 .withLocalizedCallbackKey(EmojiConstants.WRENCH + " " + i18N.get("callback.user.telegramuser.callback.button"))
                 .with(1, (callbackData) -> {
-
-                            long userSize = telegramUserService.size();
-                            if (!InlineUtils.paginationMatches(callbackData.getCallbackData())) {
-                                callbackData.setCallbackData(callbackData.getCallbackData() + " {0}");
-                            }
-                            return MessageUtils.editMessage(callbackData.getMessageData())
-                                    .text(handle(CommandData.from(callbackData)).getText())
-                                    .replyMarkup(InlineUtils.combineKeyboardMarkups(
-                                            InlineUtils.getListNavigationMarkup(callbackData,
-                                                    userSize / defaultPageSize + (userSize % defaultPageSize > 0 ? 1 : 0)
-                                            ),
-                                            InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.user.telegramuser.callback.button"), "tguser"),
-                                            InlineUtils.getNavigationToStart(callbackData.getMessageData())
-                                    ))
-                                    .build();
-                        }
-                )
-                .with(2, (callbackData )-> {
                     long userSize = telegramUserService.size();
+                    if (!InlineUtils.paginationMatches(callbackData.getCallbackData())) {
+                        callbackData.setCallbackData(callbackData.getCallbackData() + " {0}");
+                    }
                     return MessageUtils.editMessage(callbackData.getMessageData())
                             .text(handle(CommandData.from(callbackData)).getText())
                             .replyMarkup(InlineUtils.combineKeyboardMarkups(
@@ -95,8 +80,10 @@ public class ListTelegramUserCommand extends AbstractCommand<SendMessage> implem
                                             userSize / defaultPageSize + (userSize % defaultPageSize > 0 ? 1 : 0)
                                     ),
                                     InlineUtils.getDefaultNavigationMarkup(i18N.get("callback.user.telegramuser.callback.button"), "tguser"),
-                                    InlineUtils.getNavigationToStart(callbackData.getMessageData())))
+                                    InlineUtils.getNavigationToStart(callbackData.getMessageData())
+                            ))
                             .build();
-                }).build();
+                })
+                .build();
     }
 }

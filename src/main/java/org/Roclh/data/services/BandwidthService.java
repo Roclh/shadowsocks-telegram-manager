@@ -1,12 +1,14 @@
 package org.Roclh.data.services;
 
+import jakarta.annotation.PreDestroy;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.Roclh.data.entities.BandwidthModel;
 import org.Roclh.data.entities.UserModel;
 import org.Roclh.data.repositories.BandwidthRepository;
 import org.Roclh.sh.scripts.CreateBandwidthRuleScript;
-import org.Roclh.sh.scripts.CreateBandwidthRulesetScript;
+import org.Roclh.sh.scripts.DeleteBandwidthRuleScript;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
@@ -23,18 +25,21 @@ public class BandwidthService {
 
     private final BandwidthRepository bandwidthRepository;
     private final CreateBandwidthRuleScript createBandwidthRuleScript;
-    private final CreateBandwidthRulesetScript createBandwidthRulesetScript;
+    private final DeleteBandwidthRuleScript deleteBandwidthRuleScript;
 
     @EventListener(ContextRefreshedEvent.class)
     @Order(11)
     private void init() {
-        if (!createBandwidthRulesetScript.execute()) {
-            log.warn("Bandwidth service can't work on current os! To make bandwidth work, manager uses " +
-                    "linux kernel models of the system container is running.");
-        }
         bandwidthRepository.findAll().stream()
                 .filter(bandwidthModel -> bandwidthModel.getBandwidth() != null && bandwidthModel.getUserModel().getUsedPort() != null)
                 .forEach(createBandwidthRuleScript::execute);
+    }
+
+    @PreDestroy
+    private void destroy(){
+        bandwidthRepository.findAll().stream()
+                .filter(bandwidthModel -> bandwidthModel.getBandwidth() != null && bandwidthModel.getUserModel().getUsedPort() != null)
+                .forEach(deleteBandwidthRuleScript::execute);
     }
 
     public boolean setRule(@Nullable BandwidthModel bandwidthModel) {
@@ -70,5 +75,13 @@ public class BandwidthService {
 
     public List<BandwidthModel> getAll() {
         return bandwidthRepository.findAll();
+    }
+
+    public boolean hasRule(@NonNull Long telegramId) {
+        return bandwidthRepository.existsByUserModel_UserModel_TelegramId(telegramId);
+    }
+
+    public boolean hasAnyRule() {
+        return !bandwidthRepository.findAll().isEmpty();
     }
 }
